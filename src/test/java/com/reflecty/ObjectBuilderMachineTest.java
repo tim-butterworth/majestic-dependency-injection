@@ -8,15 +8,15 @@ import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
-public class BuildFactoryMachineTest {
+public class ObjectBuilderMachineTest {
 
-    private BuildFactoryMachine buildFactoryMachine;
+    private ObjectBuilderMachine objectBuilderMachine;
     private InstanceCreatorFactory factory;
 
     @Before
     public void setUp() throws Exception {
         factory = mock(InstanceCreatorFactory.class);
-        buildFactoryMachine = new BuildFactoryMachine(factory);
+        objectBuilderMachine = new ObjectBuilderMachine(factory);
     }
 
     @Test
@@ -28,7 +28,7 @@ public class BuildFactoryMachineTest {
         when(factory.getInstanceCreator(aClass)).thenReturn(instanceCreator);
         when(instanceCreator.getInstance(aClass)).thenReturn(expectedObject);
 
-        Object actualObject = buildFactoryMachine.buildItRealWell(aClass);
+        Object actualObject = objectBuilderMachine.getInstance(aClass);
 
         assertThat(actualObject, sameInstance(expectedObject));
         verify(instanceCreator).getInstance(aClass);

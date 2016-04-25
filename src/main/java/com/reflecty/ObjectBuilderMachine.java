@@ -1,13 +1,13 @@
 package com.reflecty;
 
-public class BuildFactoryMachine {
+public class ObjectBuilderMachine {
     private InstanceCreatorFactory instanceCreatorFactory;
 
-    public BuildFactoryMachine(InstanceCreatorFactory instanceCreatorFactory) {
+    public ObjectBuilderMachine(InstanceCreatorFactory instanceCreatorFactory) {
         this.instanceCreatorFactory = instanceCreatorFactory;
     }
 
-    public <T> T buildItRealWell(Class<T> clazz) {
+    public <T> T getInstance(Class<T> clazz) {
         return instanceCreatorFactory.getInstanceCreator(clazz).getInstance(clazz);
     }
 

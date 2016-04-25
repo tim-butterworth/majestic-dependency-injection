@@ -1,21 +1,21 @@
 package com.reflecty.testModels;
 
-import com.reflecty.BuildFactoryMachine;
+import com.reflecty.ObjectBuilderMachine;
 
 public class SpecialRunnable<T> implements Runnable {
     private T instance;
-    private BuildFactoryMachine buildFactoryMachine;
+    private ObjectBuilderMachine buildFactoryMachine;
     private Class<T> clazz;
 
 
-    public SpecialRunnable(BuildFactoryMachine buildFactoryMachine, Class<T> clazz) {
+    public SpecialRunnable(ObjectBuilderMachine buildFactoryMachine, Class<T> clazz) {
         this.buildFactoryMachine = buildFactoryMachine;
         this.clazz = clazz;
     }
 
     @Override
     public void run() {
-        instance = buildFactoryMachine.buildItRealWell(clazz);
+        instance = buildFactoryMachine.getInstance(clazz);
     }
 
     public T getInstance() {

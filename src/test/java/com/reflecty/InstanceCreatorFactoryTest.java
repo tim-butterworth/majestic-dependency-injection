@@ -2,6 +2,7 @@ package com.reflecty;
 
 import com.reflecty.creators.DefaultInstanceCreator;
 import com.reflecty.creators.InstanceCreator;
+import com.reflecty.creators.ReflectiveInstantiator;
 import com.reflecty.creators.SingletonInstanceCreator;
 import com.reflecty.testModels.NonSingleTonClass;
 import com.reflecty.testModels.SingleTonClass;
@@ -17,7 +18,10 @@ public class InstanceCreatorFactoryTest {
 
     @Before
     public void setUp() throws Exception {
-        instanceCreatorFactory = new InstanceCreatorFactory();
+        ReflectiveInstantiator reflectiveInstantiator = new ReflectiveInstantiator(
+                new ObjectBuilderMachine()
+        );
+        instanceCreatorFactory = new InstanceCreatorFactory(reflectiveInstantiator);
     }
 
     @Test

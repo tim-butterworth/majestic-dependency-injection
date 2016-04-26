@@ -1,7 +1,6 @@
 package com.reflecty.integration;
 
 import com.reflecty.ObjectBuilderMachine;
-import com.reflecty.InstanceCreatorFactory;
 import com.reflecty.testModels.ConstructorTonClass;
 import com.reflecty.testModels.NonSingleTonClass;
 import com.reflecty.testModels.SingleTonClass;
@@ -20,8 +19,7 @@ public class ObjectBuilderMachineIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        InstanceCreatorFactory instanceCreatorFactory = new InstanceCreatorFactory();
-        objectBuilderMachine = new ObjectBuilderMachine(instanceCreatorFactory);
+        objectBuilderMachine = new ObjectBuilderMachine();
     }
 
     @Test

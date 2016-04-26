@@ -1,10 +1,10 @@
 package com.reflecty;
 
-
 import com.reflecty.chainclasses.MatcherForInstance;
 import com.reflecty.chainclasses.MatcherForSingletonInstanceCreator;
 import com.reflecty.creators.DefaultInstanceCreator;
 import com.reflecty.creators.InstanceCreator;
+import com.reflecty.creators.ReflectiveInstantiator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,13 +13,11 @@ public class InstanceCreatorFactory {
 
     private final List<MatcherForInstance<? extends InstanceCreator, Class<?>>> matcherForInstanceList;
     private final DefaultInstanceCreator defaultInstanceCreator;
-    private final MatcherForSingletonInstanceCreator matcherForSingletonInstanceCreator = new MatcherForSingletonInstanceCreator();
 
-    public InstanceCreatorFactory() {
+    public InstanceCreatorFactory(ReflectiveInstantiator reflectiveInstantiator) {
         matcherForInstanceList = new ArrayList<>();
-        defaultInstanceCreator = new DefaultInstanceCreator();
-
-        matcherForInstanceList.add(matcherForSingletonInstanceCreator.getSingletonInstanceCreatorClassMatcherForInstance());
+        defaultInstanceCreator = new DefaultInstanceCreator(reflectiveInstantiator);
+        matcherForInstanceList.add(new MatcherForSingletonInstanceCreator(reflectiveInstantiator));
     }
 
     public <T> InstanceCreator getInstanceCreator(Class<T> tClass) {

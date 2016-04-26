@@ -1,5 +1,6 @@
 package com.reflecty.creators;
 
+import com.reflecty.ObjectBuilderMachine;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -10,10 +11,12 @@ import static org.junit.Assert.*;
 public class DefaultInstanceCreatorTest {
 
     private DefaultInstanceCreator defaultInstanceCreator;
+    private ReflectiveInstantiator reflectiveInstantiator;
 
     @Before
     public void setUp() throws Exception {
-        defaultInstanceCreator = new DefaultInstanceCreator();
+        reflectiveInstantiator = new ReflectiveInstantiator(new ObjectBuilderMachine());
+        defaultInstanceCreator = new DefaultInstanceCreator(reflectiveInstantiator);
     }
 
     @Test

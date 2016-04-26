@@ -7,8 +7,8 @@ public class SingletonInstanceCreator implements InstanceCreator {
     private final Map<Class<?>, Object> singletonObjectCache;
     private final ReflectiveInstantiator reflectiveInstantiator;
 
-    public SingletonInstanceCreator() {
-        reflectiveInstantiator = new ReflectiveInstantiator();
+    public SingletonInstanceCreator(ReflectiveInstantiator reflectiveInstantiator) {
+        this.reflectiveInstantiator = reflectiveInstantiator;
         singletonObjectCache = new HashMap<>();
     }
 

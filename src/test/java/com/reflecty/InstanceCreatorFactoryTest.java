@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 public class InstanceCreatorFactoryTest {
 
@@ -18,9 +19,7 @@ public class InstanceCreatorFactoryTest {
 
     @Before
     public void setUp() throws Exception {
-        ReflectiveInstantiator reflectiveInstantiator = new ReflectiveInstantiator(
-                new ObjectBuilderMachine()
-        );
+        ReflectiveInstantiator reflectiveInstantiator = mock(ReflectiveInstantiator.class);
         instanceCreatorFactory = new InstanceCreatorFactory(reflectiveInstantiator);
     }
 

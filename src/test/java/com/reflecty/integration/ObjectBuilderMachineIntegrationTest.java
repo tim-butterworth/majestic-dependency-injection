@@ -1,10 +1,10 @@
 package com.reflecty.integration;
 
 import com.reflecty.ObjectBuilderMachine;
+import com.reflecty.ObjectBuilderMachineBuilder;
 import com.reflecty.testModels.ConstructorTonClass;
 import com.reflecty.testModels.NonSingleTonClass;
 import com.reflecty.testModels.SingleTonClass;
-import com.reflecty.testModels.SpecialRunnable;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,7 +19,7 @@ public class ObjectBuilderMachineIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        objectBuilderMachine = new ObjectBuilderMachine();
+        objectBuilderMachine = ObjectBuilderMachineBuilder.build();
     }
 
     @Test
@@ -47,36 +47,6 @@ public class ObjectBuilderMachineIntegrationTest {
         assertThat(nonSingleTonClass, not(nullValue()));
         assertThat(nonSingleTonClass2, not(nullValue()));
         assertThat(nonSingleTonClass, not(sameInstance(nonSingleTonClass2)));
-    }
-
-    @Test
-    public void not_singletony_whenNotAnnotatedWithSingleton_isThreadSafeProbably() throws Exception {
-        SpecialRunnable<SingleTonClass> runnable1 = new SpecialRunnable<>(objectBuilderMachine, SingleTonClass.class);
-        SpecialRunnable<SingleTonClass> runnable2 = new SpecialRunnable<>(objectBuilderMachine, SingleTonClass.class);
-        SpecialRunnable<SingleTonClass> runnable3 = new SpecialRunnable<>(objectBuilderMachine, SingleTonClass.class);
-
-        Thread t1 = new Thread(runnable1);
-        t1.setName("t1 thread of justice!!");
-
-        Thread t2 = new Thread(runnable2);
-        t2.setName("t2 a roguish thread!!");
-
-        Thread t3 = new Thread(runnable3);
-        t3.setName("t3 a helpless, weak thread!!");
-
-        t1.start();
-        t2.start();
-        t3.start();
-
-        t1.join();
-        t2.join();
-        t3.join();
-
-        SingleTonClass instance = runnable1.getInstance();
-        SingleTonClass instance1 = runnable2.getInstance();
-
-        assertThat(instance, not(nullValue()));
-        assertThat(instance, sameInstance(instance1));
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.reflecty.creators;
 
 import com.reflecty.ObjectBuilderMachine;
+import com.reflecty.helperObjects.ObjectContainer;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -9,10 +10,10 @@ import java.util.stream.Collectors;
 
 public class ReflectiveInstantiator {
 
-    private ObjectBuilderMachine objectBuilderMachine;
+    private ObjectContainer<ObjectBuilderMachine> objectBuilderMachineContainer;
 
-    public ReflectiveInstantiator(ObjectBuilderMachine objectBuilderMachine) {
-        this.objectBuilderMachine = objectBuilderMachine;
+    public ReflectiveInstantiator(ObjectContainer<ObjectBuilderMachine> objectBuilderMachineContainer) {
+        this.objectBuilderMachineContainer = objectBuilderMachineContainer;
     }
 
     public <T> T instantiate(Class<T> clazz) {
@@ -25,9 +26,10 @@ public class ReflectiveInstantiator {
 
     private <T> T newInstanceFromConstructor(Constructor<?> constructor) throws InstantiationException, IllegalAccessException, InvocationTargetException {
         return (T) constructor.newInstance(
-                Arrays.asList(
-                        constructor.getParameterTypes()
-                ).stream().map(objectBuilderMachine::getInstance).collect(Collectors.toList()).toArray()
+                Arrays.asList(constructor.getParameterTypes())
+                        .stream()
+                        .map(param -> objectBuilderMachineContainer.getContents().getInstance(param))
+                        .collect(Collectors.toList()).toArray()
         );
     }
 }

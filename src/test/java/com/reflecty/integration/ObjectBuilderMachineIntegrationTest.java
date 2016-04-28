@@ -2,12 +2,12 @@ package com.reflecty.integration;
 
 import com.reflecty.ObjectBuilderMachine;
 import com.reflecty.ObjectBuilderMachineBuilder;
-import com.reflecty.testModels.ConstructorTonClass;
-import com.reflecty.testModels.NonSingleTonClass;
-import com.reflecty.testModels.SingleTonClass;
-import org.junit.Before;
+import com.reflecty.configurations.BuildModule;
+import com.reflecty.configurations.NamespaceTypeMatcherImpl;
+import com.reflecty.testModels.*;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsNot.not;
@@ -15,22 +15,17 @@ import static org.hamcrest.core.IsNull.nullValue;
 
 public class ObjectBuilderMachineIntegrationTest {
 
-    private ObjectBuilderMachine objectBuilderMachine;
-
-    @Before
-    public void setUp() throws Exception {
-        objectBuilderMachine = ObjectBuilderMachineBuilder.build();
-    }
-
     @Test
     public void name() throws Exception {
-        NonSingleTonClass nonSingleTonClass = objectBuilderMachine.getInstance(NonSingleTonClass.class);
+        NonSingleTonClass nonSingleTonClass = new ObjectBuilderMachineBuilder().build().getInstance(NonSingleTonClass.class);
 
         assertThat(nonSingleTonClass, not(nullValue()));
     }
 
     @Test
     public void singletony_whenAnnotatedWithSingleton() throws Exception {
+        ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachineBuilder().build();
+
         SingleTonClass singleTonClass = objectBuilderMachine.getInstance(SingleTonClass.class);
         SingleTonClass singleTonClass2 = objectBuilderMachine.getInstance(SingleTonClass.class);
 
@@ -41,6 +36,8 @@ public class ObjectBuilderMachineIntegrationTest {
 
     @Test
     public void not_singletony_whenNotAnnotatedWithSingleton() throws Exception {
+        ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachineBuilder().build();
+
         NonSingleTonClass nonSingleTonClass = objectBuilderMachine.getInstance(NonSingleTonClass.class);
         NonSingleTonClass nonSingleTonClass2 = objectBuilderMachine.getInstance(NonSingleTonClass.class);
 
@@ -51,7 +48,7 @@ public class ObjectBuilderMachineIntegrationTest {
 
     @Test
     public void createClassWithANonEmptyContstructor() throws Exception {
-        ConstructorTonClass constructorTonClass = objectBuilderMachine.getInstance(ConstructorTonClass.class);
+        ConstructorTonClass constructorTonClass = new ObjectBuilderMachineBuilder().build().getInstance(ConstructorTonClass.class);
 
         assertThat(constructorTonClass, not(nullValue()));
         assertThat(constructorTonClass.getSingleTonClass(), not(nullValue()));
@@ -59,6 +56,8 @@ public class ObjectBuilderMachineIntegrationTest {
 
     @Test
     public void createClassWithANonEmptyContstructor_enforcesSingletonNess() throws Exception {
+        ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachineBuilder().build();
+
         ConstructorTonClass constructorTonClass1 = objectBuilderMachine.getInstance(ConstructorTonClass.class);
         ConstructorTonClass constructorTonClass2 = objectBuilderMachine.getInstance(ConstructorTonClass.class);
 
@@ -66,5 +65,27 @@ public class ObjectBuilderMachineIntegrationTest {
         assertThat(constructorTonClass2.getSingleTonClass(), not(nullValue()));
 
         assertThat(constructorTonClass1.getSingleTonClass(), sameInstance(constructorTonClass2.getSingleTonClass()));
+    }
+
+    @Test
+    public void createClassUsingAModule() throws Exception {
+        BuildModule module = new BuildModule();
+        module.register(ImplOne.class,
+                new NamespaceTypeMatcherImpl(
+                        "One",
+                        InterfaceForAnObject.class
+                )
+        ).register(ImplTwo.class,
+                new NamespaceTypeMatcherImpl(
+                        "Two",
+                        InterfaceForAnObject.class
+                )
+        );
+
+        ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachineBuilder().addModule(module).build();
+        ConstructorWithAnnotatedParams instance = objectBuilderMachine.getInstance(ConstructorWithAnnotatedParams.class);
+
+        assertThat(instance.getFirstObj().getClassName(), is("ImplOne"));
+        assertThat(instance.getSecondObj().getClassName(), is("ImplTwo"));
     }
 }

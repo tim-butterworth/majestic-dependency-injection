@@ -1,7 +1,7 @@
 package com.reflecty.chainclasses;
 
 import com.reflecty.annotations.Singleton;
-import com.reflecty.creators.ReflectiveInstantiator;
+import com.reflecty.instantiators.ReflectiveInstantiator;
 import com.reflecty.creators.SingletonInstanceCreator;
 
 import java.util.Arrays;

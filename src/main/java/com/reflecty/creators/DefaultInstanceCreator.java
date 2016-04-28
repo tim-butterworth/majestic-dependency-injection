@@ -1,5 +1,7 @@
 package com.reflecty.creators;
 
+import com.reflecty.instantiators.ReflectiveInstantiator;
+
 public class DefaultInstanceCreator implements InstanceCreator {
 
     private final ReflectiveInstantiator reflectiveInstantiator;

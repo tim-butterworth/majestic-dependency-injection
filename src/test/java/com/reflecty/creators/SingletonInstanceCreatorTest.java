@@ -1,5 +1,6 @@
 package com.reflecty.creators;
 
+import com.reflecty.instantiators.ReflectiveInstantiator;
 import com.reflecty.testModels.SpecialRunnable;
 import com.reflecty.testModels.TestClass1;
 import com.reflecty.testModels.TestClass2;

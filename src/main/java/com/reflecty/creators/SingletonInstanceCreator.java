@@ -1,5 +1,7 @@
 package com.reflecty.creators;
 
+import com.reflecty.instantiators.ReflectiveInstantiator;
+
 import java.util.HashMap;
 import java.util.Map;
 

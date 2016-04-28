@@ -1,10 +1,10 @@
-package com.reflecty;
+package com.reflecty.factories;
 
 import com.reflecty.chainclasses.MatcherForInstance;
 import com.reflecty.chainclasses.MatcherForSingletonInstanceCreator;
 import com.reflecty.creators.DefaultInstanceCreator;
 import com.reflecty.creators.InstanceCreator;
-import com.reflecty.creators.ReflectiveInstantiator;
+import com.reflecty.instantiators.ReflectiveInstantiator;
 
 import java.util.ArrayList;
 import java.util.List;

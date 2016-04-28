@@ -2,7 +2,8 @@ package com.reflecty;
 
 import com.reflecty.creators.DefaultInstanceCreator;
 import com.reflecty.creators.InstanceCreator;
-import com.reflecty.creators.ReflectiveInstantiator;
+import com.reflecty.factories.InstanceCreatorFactory;
+import com.reflecty.instantiators.ReflectiveInstantiator;
 import com.reflecty.creators.SingletonInstanceCreator;
 import com.reflecty.testModels.NonSingleTonClass;
 import com.reflecty.testModels.SingleTonClass;

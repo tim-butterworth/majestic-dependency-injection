@@ -1,5 +1,7 @@
 package com.reflecty;
 
+import com.reflecty.factories.InstanceCreatorFactory;
+
 public class ObjectBuilderMachine {
     private InstanceCreatorFactory instanceCreatorFactory;
 

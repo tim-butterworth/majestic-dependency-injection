@@ -1,4 +1,4 @@
-package com.reflecty.creators;
+package com.reflecty.cachingStrategies;
 
 import com.reflecty.instantiators.ReflectiveInstantiator;
 import com.reflecty.testModels.SpecialRunnable;
@@ -14,16 +14,17 @@ import java.util.List;
 import java.util.function.Function;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
+import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
 
-public class SingletonInstanceCreatorTest {
-
-    private SingletonInstanceCreator singletonInstanceCreator;
+public class SingletonCacheStrategyTest {
+    private final ReflectiveInstantiator mock = mock(ReflectiveInstantiator.class);
+    private SingletonCacheStrategy singletonInstanceCreator;
 
     @Before
     public void setUp() throws Exception {
-        singletonInstanceCreator = new SingletonInstanceCreator(mock(ReflectiveInstantiator.class));
+        singletonInstanceCreator = new SingletonCacheStrategy();
     }
 
     @Test
@@ -52,6 +53,27 @@ public class SingletonInstanceCreatorTest {
         assertProcessTime(threads, duration -> duration > 4000);
     }
 
+    @Test
+    public void getInstance_callsGetInstanceWhenInstanceIsNotChached() throws Exception {
+        singletonInstanceCreator.getInstance(TestClass1.class, mock);
+
+        verify(mock).instantiate(TestClass1.class);
+        verifyNoMoreInteractions(mock);
+    }
+
+    @Test
+    public void getInstance_doesNotCallgetInstanceWhenInstanceAlreadyCached() throws Exception {
+        when(mock.instantiate(TestClass1.class)).thenReturn(new TestClass1());
+
+        TestClass1 instance = singletonInstanceCreator.getInstance(TestClass1.class, mock);
+        TestClass1 instance2 = singletonInstanceCreator.getInstance(TestClass1.class, mock);
+
+        assertThat(instance, sameInstance(instance2));
+
+        verify(mock).instantiate(TestClass1.class);
+        verifyNoMoreInteractions(mock);
+    }
+
     private void assertProcessTime(List<Thread> threads, Function<Long, Boolean> function) throws InterruptedException {
         Long start = new Date().getTime();
 
@@ -69,7 +91,7 @@ public class SingletonInstanceCreatorTest {
     }
 
     private <T> Function<Class<T>, T> getFunctionForClass() {
-        return objectClass -> singletonInstanceCreator.getInstance(objectClass);
+        return objectClass -> singletonInstanceCreator.getInstance(objectClass, mock);
     }
 
 }

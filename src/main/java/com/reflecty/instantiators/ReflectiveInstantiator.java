@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class ReflectiveInstantiator {
+public class ReflectiveInstantiator implements Instantiator {
 
     private ObjectContainer<ObjectBuilderMachine> objectBuilderMachineContainer;
     private BuildModule module;
@@ -25,6 +25,7 @@ public class ReflectiveInstantiator {
         this.module = module;
     }
 
+    @Override
     public <T> T instantiate(Class<T> clazz) {
         try {
             return newInstanceFromConstructor(
@@ -49,7 +50,7 @@ public class ReflectiveInstantiator {
         return IntStream.range(0, parameterTypes.length)
                 .mapToObj(i -> {
                     Class<?> aClass = parameterTypes[i];
-                    NamespaceTypeMatcherImpl typeMatcher = new NamespaceTypeMatcherImpl(getNamespace(parameterAnnotations[i]), aClass);
+                    NamespaceTypeMatcherImpl typeMatcher = new NamespaceTypeMatcherImpl<>(getNamespace(parameterAnnotations[i]), aClass);
                     return objectBuilderMachineContainer.getContents().getInstance(getRegisteredClass(aClass, typeMatcher));
                 }).collect(Collectors.toList()).toArray();
     }
@@ -60,9 +61,7 @@ public class ReflectiveInstantiator {
                 .map(annotation -> {
                     Namespace namespace = (Namespace) annotation;
                     return namespace.value();
-                })
-                .findFirst()
-                .orElse("default");
+                }).findFirst().orElse("default");
     }
 
     private <T> Class<? extends T> getRegisteredClass(Class<T> clazz, TypeMatcher typeMatcher) {

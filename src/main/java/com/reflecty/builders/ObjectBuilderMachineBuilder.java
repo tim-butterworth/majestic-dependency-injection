@@ -1,12 +1,17 @@
 package com.reflecty.builders;
 
 import com.reflecty.ObjectBuilderMachine;
+import com.reflecty.cachingStrategies.NoCachingStrategy;
+import com.reflecty.cachingStrategies.SingletonCacheStrategy;
 import com.reflecty.configurations.BuildModule;
 import com.reflecty.configurations.TypeMatcher;
-import com.reflecty.factories.InstanceCreatorFactory;
-import com.reflecty.instantiators.ReflectiveInstantiator;
+import com.reflecty.creators.InstanceCreatorMachine;
+import com.reflecty.matchers.EverythingMatcher;
+import com.reflecty.matchers.SingletonMatcherImpl;
 import com.reflecty.helperObjects.ObjectContainer;
+import com.reflecty.instantiators.ReflectiveInstantiator;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,8 +27,11 @@ public class ObjectBuilderMachineBuilder {
         interfaceMatcherPairList.forEach(item -> module.register(item.getAnImplementation(), item.getTypeMatcher()));
 
         ReflectiveInstantiator reflectiveInstantiator = new ReflectiveInstantiator(objectBuilderMachineObjectContainer, module);
-        InstanceCreatorFactory instanceCreatorFactory = new InstanceCreatorFactory(reflectiveInstantiator);
-        ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachine(instanceCreatorFactory);
+
+        ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachine(
+                Collections.singletonList(getSingletonInstanceCreatorMachine(reflectiveInstantiator)),
+                getDefaultInstanceCreatorMachine(reflectiveInstantiator)
+        );
 
         objectBuilderMachineObjectContainer.addToContainer(objectBuilderMachine);
 
@@ -33,6 +41,14 @@ public class ObjectBuilderMachineBuilder {
     public <T, R extends T> ObjectBuilderMachineBuilder register(Class<R> anImplementation, TypeMatcher<T> typeMatcher) {
         interfaceMatcherPairList.add(new InterfaceMatcherPair<>(anImplementation, typeMatcher));
         return this;
+    }
+
+    private InstanceCreatorMachine getSingletonInstanceCreatorMachine(ReflectiveInstantiator reflectiveInstantiator) {
+        return new InstanceCreatorMachine(reflectiveInstantiator, new SingletonCacheStrategy(), new SingletonMatcherImpl());
+    }
+
+    private InstanceCreatorMachine getDefaultInstanceCreatorMachine(ReflectiveInstantiator reflectiveInstantiator) {
+        return new InstanceCreatorMachine(reflectiveInstantiator, new NoCachingStrategy(), new EverythingMatcher());
     }
 
     private class InterfaceMatcherPair<M extends T, T> {

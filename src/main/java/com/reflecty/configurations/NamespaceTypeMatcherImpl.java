@@ -1,11 +1,11 @@
 package com.reflecty.configurations;
 
-public class NamespaceTypeMatcherImpl implements TypeMatcher {
-    private final String key;
-    private final Class<?> aClass;
+public class NamespaceTypeMatcherImpl<T> implements TypeMatcher<T> {
+    private final String namespace;
+    private final Class<T> aClass;
 
-    public NamespaceTypeMatcherImpl(String key, Class<?> aClass) {
-        this.key = key;
+    public NamespaceTypeMatcherImpl(String namespace, Class<T> aClass) {
+        this.namespace = namespace;
         this.aClass = aClass;
     }
 
@@ -16,14 +16,14 @@ public class NamespaceTypeMatcherImpl implements TypeMatcher {
 
         NamespaceTypeMatcherImpl that = (NamespaceTypeMatcherImpl) o;
 
-        if (key != null ? !key.equals(that.key) : that.key != null) return false;
+        if (namespace != null ? !namespace.equals(that.namespace) : that.namespace != null) return false;
         return aClass != null ? aClass.equals(that.aClass) : that.aClass == null;
 
     }
 
     @Override
     public int hashCode() {
-        int result = key != null ? key.hashCode() : 0;
+        int result = namespace != null ? namespace.hashCode() : 0;
         result = 31 * result + (aClass != null ? aClass.hashCode() : 0);
         return result;
     }

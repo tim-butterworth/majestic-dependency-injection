@@ -1,4 +1,4 @@
 package com.reflecty.configurations;
 
-public interface TypeMatcher {
+public interface TypeMatcher<T> {
 }

@@ -1,8 +1,7 @@
 package com.reflecty.integration;
 
 import com.reflecty.ObjectBuilderMachine;
-import com.reflecty.ObjectBuilderMachineBuilder;
-import com.reflecty.configurations.BuildModule;
+import com.reflecty.builders.ObjectBuilderMachineBuilder;
 import com.reflecty.configurations.NamespaceTypeMatcherImpl;
 import com.reflecty.testModels.*;
 import org.junit.Test;
@@ -69,20 +68,17 @@ public class ObjectBuilderMachineIntegrationTest {
 
     @Test
     public void createClassUsingAModule() throws Exception {
-        BuildModule module = new BuildModule();
-        module.register(ImplOne.class,
-                new NamespaceTypeMatcherImpl(
+        ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachineBuilder().register(ImplOne.class,
+                new NamespaceTypeMatcherImpl<>(
                         "One",
                         InterfaceForAnObject.class
                 )
         ).register(ImplTwo.class,
-                new NamespaceTypeMatcherImpl(
+                new NamespaceTypeMatcherImpl<>(
                         "Two",
                         InterfaceForAnObject.class
                 )
-        );
-
-        ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachineBuilder().addModule(module).build();
+        ).build();
         ConstructorWithAnnotatedParams instance = objectBuilderMachine.getInstance(ConstructorWithAnnotatedParams.class);
 
         assertThat(instance.getFirstObj().getClassName(), is("ImplOne"));

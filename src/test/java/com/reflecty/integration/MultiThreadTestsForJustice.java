@@ -1,11 +1,9 @@
 package com.reflecty.integration;
 
 import com.reflecty.ObjectBuilderMachine;
-import com.reflecty.ObjectBuilderMachineBuilder;
-import com.reflecty.configurations.BuildModule;
+import com.reflecty.builders.ObjectBuilderMachineBuilder;
 import com.reflecty.configurations.NamespaceTypeMatcherImpl;
 import com.reflecty.testModels.*;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.function.Function;
@@ -54,11 +52,14 @@ public class MultiThreadTestsForJustice {
 
     @Test
     public void not_singletony_whenNotAnnotatedWithSingleton_isThreadSafeProbably_evenForRegisteredClasses() throws Exception {
-        BuildModule module = new BuildModule();
-        module.register(ImplOne.class, new NamespaceTypeMatcherImpl("One", InterfaceForAnObject.class));
-        module.register(ImplTwo.class, new NamespaceTypeMatcherImpl("Two", InterfaceForAnObject.class));
-
-        objectBuilderMachine = new ObjectBuilderMachineBuilder().addModule(module).build();
+        objectBuilderMachine = new ObjectBuilderMachineBuilder()
+                .register(
+                        ImplOne.class,
+                        new NamespaceTypeMatcherImpl<>("One", InterfaceForAnObject.class)
+                ).register(
+                        ImplTwo.class,
+                        new NamespaceTypeMatcherImpl<>("Two", InterfaceForAnObject.class)
+                ).build();
 
         Function<Class<ConstructorWithAnnotatedParams>, ConstructorWithAnnotatedParams> function = clazz -> objectBuilderMachine.getInstance(clazz);
 

@@ -1,6 +1,6 @@
 package com.reflecty.configurations;
 
-public class TypeMatcherImpl implements TypeMatcher {
+public class TypeMatcherImpl<T> implements TypeMatcher<T> {
     private Class<?> aClass;
 
     public TypeMatcherImpl(Class<?> aClass) {

@@ -1,6 +1,7 @@
 package com.reflecty.creators;
 
 import com.reflecty.ObjectBuilderMachine;
+import com.reflecty.annotations.Namespace;
 import com.reflecty.configurations.BuildModule;
 import com.reflecty.configurations.DecoratedClass;
 import com.reflecty.configurations.NamespaceTypeMatcherImpl;
@@ -10,6 +11,8 @@ import com.reflecty.instantiators.ReflectiveInstantiator;
 import com.reflecty.testModels.*;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.lang.annotation.Annotation;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -60,9 +63,11 @@ public class ReflectiveInstantiatorTest {
 
     @Test
     public void instantiate_worksRegisteredInterfaces() throws Exception {
-        when(module.<InterfaceForAnObject>getMatch(eq(new TypeMatcherImpl(InterfaceForAnObject.class)))).thenReturn(ImplOne.class);
+        DecoratedClass<InterfaceForAnObject> classContainer = new DecoratedClass<>(InterfaceForAnObject.class);
 
-        InterfaceForAnObject instantiate = reflectiveInstantiator.instantiate(new DecoratedClass<>(InterfaceForAnObject.class));
+        when(module.getMatch(eq(classContainer))).thenReturn(ImplOne.class);
+
+        InterfaceForAnObject instantiate = reflectiveInstantiator.instantiate(classContainer);
 
         assertThat(instantiate, not(nullValue()));
         assertThat(instantiate, instanceOf(ImplOne.class));
@@ -70,8 +75,11 @@ public class ReflectiveInstantiatorTest {
 
     @Test
     public void instantiate_worksRegisteredInterfacesInConstuctorParams() throws Exception {
-        when(module.getMatch(eq(new NamespaceTypeMatcherImpl("One", InterfaceForAnObject.class)))).thenReturn(ImplOne.class);
-        when(module.getMatch(eq(new NamespaceTypeMatcherImpl("Two", InterfaceForAnObject.class)))).thenReturn(ImplTwo.class);
+        Annotation[][] parameterAnnotations = ConstructorWithAnnotatedParams.class.getDeclaredConstructors()[0].getParameterAnnotations();
+
+
+        when(module.getMatch(eq(new DecoratedClass<>(InterfaceForAnObject.class, parameterAnnotations[0])))).thenReturn(ImplOne.class);
+        when(module.getMatch(eq(new DecoratedClass<>(InterfaceForAnObject.class, parameterAnnotations[1])))).thenReturn(ImplTwo.class);
 
         when(builderMachine.getInstance(ImplOne.class)).thenReturn(new ImplOne());
         when(builderMachine.getInstance(ImplTwo.class)).thenReturn(new ImplTwo());

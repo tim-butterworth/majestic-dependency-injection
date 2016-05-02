@@ -29,8 +29,8 @@ public class ObjectBuilderMachineBuilder {
         ReflectiveInstantiator reflectiveInstantiator = new ReflectiveInstantiator(objectBuilderMachineObjectContainer, module);
 
         ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachine(
-                Collections.singletonList(getSingletonInstanceCreatorMachine(reflectiveInstantiator)),
-                getDefaultInstanceCreatorMachine(reflectiveInstantiator)
+                Collections.singletonList(getSingletonInstanceCreatorMachine(reflectiveInstantiator, module)),
+                getDefaultInstanceCreatorMachine(reflectiveInstantiator, module)
         );
 
         objectBuilderMachineObjectContainer.addToContainer(objectBuilderMachine);
@@ -43,12 +43,12 @@ public class ObjectBuilderMachineBuilder {
         return this;
     }
 
-    private InstanceCreatorMachine getSingletonInstanceCreatorMachine(ReflectiveInstantiator reflectiveInstantiator) {
-        return new InstanceCreatorMachine(reflectiveInstantiator, new SingletonCacheStrategy(), new SingletonMatcherImpl());
+    private InstanceCreatorMachine getSingletonInstanceCreatorMachine(ReflectiveInstantiator reflectiveInstantiator, BuildModule module) {
+        return new InstanceCreatorMachine(reflectiveInstantiator, module, new SingletonCacheStrategy(), new SingletonMatcherImpl());
     }
 
-    private InstanceCreatorMachine getDefaultInstanceCreatorMachine(ReflectiveInstantiator reflectiveInstantiator) {
-        return new InstanceCreatorMachine(reflectiveInstantiator, new NoCachingStrategy(), new EverythingMatcher());
+    private InstanceCreatorMachine getDefaultInstanceCreatorMachine(ReflectiveInstantiator reflectiveInstantiator, BuildModule module) {
+        return new InstanceCreatorMachine(reflectiveInstantiator, module, new NoCachingStrategy(), new EverythingMatcher());
     }
 
     private class InterfaceMatcherPair<M extends T, T> {

@@ -79,6 +79,7 @@ public class ObjectBuilderMachineIntegrationTest {
                         InterfaceForAnObject.class
                 )
         ).build();
+
         ConstructorWithAnnotatedParams instance = objectBuilderMachine.getInstance(ConstructorWithAnnotatedParams.class);
 
         assertThat(instance.getFirstObj().getClassName(), is("ImplOne"));

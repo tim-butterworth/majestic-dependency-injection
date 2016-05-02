@@ -25,15 +25,17 @@ public class ReflectiveInstantiator implements Instantiator {
     @Override
     public <T> T instantiate(DecoratedClass<T> classContainer) {
         Class<T> containedClass = classContainer.getContainedClass();
+        Class<?> registeredClass = null;
         try {
+            registeredClass = getRegisteredClass(
+                    containedClass,
+                    new DecoratedClass<>(containedClass)
+            );
             return newInstanceFromConstructor(
-                    getRegisteredClass(
-                            containedClass,
-                            new TypeMatcherImpl(containedClass)
-                    ).getDeclaredConstructors()[0]
+                    registeredClass.getDeclaredConstructors()[0]
             );
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Class: " + getRegisteredClass(containedClass, new TypeMatcherImpl(containedClass)).getName() + " does not have an appropriate constructor", e);
+            throw new RuntimeException("Class: " + registeredClass + " does not have an appropriate constructor", e);
         }
     }
 
@@ -41,15 +43,15 @@ public class ReflectiveInstantiator implements Instantiator {
         return (T) constructor.newInstance(buildConstructorArguments(constructor));
     }
 
-    private Object[] buildConstructorArguments(Constructor<?> constructor) {
+    private <T> Object[] buildConstructorArguments(Constructor<?> constructor) {
         Annotation[][] parameterAnnotations = constructor.getParameterAnnotations();
         Class<?>[] parameterTypes = constructor.getParameterTypes();
 
         return IntStream.range(0, parameterTypes.length)
                 .mapToObj(i -> {
-                    Class<?> aClass = parameterTypes[i];
-                    NamespaceTypeMatcherImpl typeMatcher = new NamespaceTypeMatcherImpl<>(getNamespace(parameterAnnotations[i]), aClass);
-                    return objectBuilderMachineContainer.getContents().getInstance(getRegisteredClass(aClass, typeMatcher));
+                    Class<T> aClass = (Class<T>)parameterTypes[i];
+                    DecoratedClass<T> decoratedClass = new DecoratedClass<>(aClass, parameterAnnotations[i]);
+                    return objectBuilderMachineContainer.getContents().getInstance(getRegisteredClass(aClass, decoratedClass));
                 }).collect(Collectors.toList()).toArray();
     }
 
@@ -62,8 +64,8 @@ public class ReflectiveInstantiator implements Instantiator {
                 }).findFirst().orElse("default");
     }
 
-    private <T> Class<? extends T> getRegisteredClass(Class<T> clazz, TypeMatcher typeMatcher) {
-        Class<? extends T> match = (Class<? extends T>) module.getMatch(typeMatcher);
+    private <T> Class<? extends T> getRegisteredClass(Class<T> clazz, DecoratedClass<T> decoratedClass) {
+        Class<? extends T> match = (Class<? extends T>) module.getMatch(decoratedClass);
         if (match == null) match = clazz;
         return match;
     }

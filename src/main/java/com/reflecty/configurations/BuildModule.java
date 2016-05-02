@@ -1,5 +1,7 @@
 package com.reflecty.configurations;
 
+import com.reflecty.annotations.Namespace;
+
 import java.util.*;
 
 public class BuildModule {
@@ -15,14 +17,26 @@ public class BuildModule {
         return this;
     }
 
-    public Object getMatch(TypeMatcher matcher) {
+    public Object getMatch(DecoratedClass<?> decoratedClass) {
         Optional<? extends Class<?>> matchOptional = registryCache.entrySet().stream()
                 .flatMap(entry -> entry.getValue()
                         .stream()
-                        .filter(value -> value.equals(matcher))
+                        .filter(value -> value.equals(getTypeMatcher(decoratedClass)))
                         .map(value -> entry.getKey()))
                 .findFirst();
 
         return matchOptional.orElse(null);
+    }
+
+    private TypeMatcher getTypeMatcher(DecoratedClass<?> decoratedClass) {
+        Class<?> containedClass = decoratedClass.getContainedClass();
+        decoratedClass.getExtraAnnotations();
+
+        return Arrays.asList(decoratedClass.getExtraAnnotations()).stream()
+                .filter(annotation -> annotation instanceof Namespace)
+                .map(annotation -> (Namespace) annotation)
+                .findFirst()
+                .map(namespaceAnnotation -> (TypeMatcher) new NamespaceTypeMatcherImpl<>(namespaceAnnotation.value(), containedClass))
+                .orElse(new TypeMatcherImpl<>(containedClass));
     }
 }

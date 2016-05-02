@@ -1,5 +1,6 @@
 package com.reflecty.creators;
 
+import com.reflecty.configurations.DecoratedClass;
 import com.reflecty.instantiators.ReflectiveInstantiator;
 
 import java.util.HashMap;
@@ -15,17 +16,19 @@ public class SingletonInstanceCreator implements InstanceCreator {
     }
 
     @Override
-    public <T> T getInstance(Class<T> clazz) {
+    public <T> T getInstance(DecoratedClass<T> classContainer) {
         System.out.println("Thread " + Thread.currentThread().getName() + " is about to enter synchronized block");
-        synchronized (clazz) {
-            System.out.println("Thread " + Thread.currentThread().getName() + " entered synchronized block......" + clazz.getName());
+        Class<T> containedClass = classContainer.getContainedClass();
+
+        synchronized (containedClass) {
+            System.out.println("Thread " + Thread.currentThread().getName() + " entered synchronized block......" + containedClass.getName());
             sleepForALittleWhile();
 
-            T instance = (T) singletonObjectCache.get(clazz);
-            if (notAlreadyCached(clazz)) {
+            T instance = (T) singletonObjectCache.get(classContainer);
+            if (notAlreadyCached(containedClass)) {
                 System.out.println("Entries in the map -> " + singletonObjectCache.entrySet().size());
-                instance = reflectiveInstantiator.instantiate(clazz);
-                singletonObjectCache.put(clazz, instance);
+                instance = reflectiveInstantiator.instantiate(classContainer);
+                singletonObjectCache.put(containedClass, instance);
             }
 
             System.out.println("exited synchronized block.....");

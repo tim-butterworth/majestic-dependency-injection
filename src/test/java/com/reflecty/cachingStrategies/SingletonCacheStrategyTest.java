@@ -1,5 +1,6 @@
 package com.reflecty.cachingStrategies;
 
+import com.reflecty.configurations.DecoratedClass;
 import com.reflecty.instantiators.ReflectiveInstantiator;
 import com.reflecty.testModels.SpecialRunnable;
 import com.reflecty.testModels.TestClass1;
@@ -55,22 +56,28 @@ public class SingletonCacheStrategyTest {
 
     @Test
     public void getInstance_callsGetInstanceWhenInstanceIsNotChached() throws Exception {
-        singletonInstanceCreator.getInstance(TestClass1.class, mock);
+        DecoratedClass<TestClass1> classContainer = new DecoratedClass<>(TestClass1.class);
 
-        verify(mock).instantiate(TestClass1.class);
+        singletonInstanceCreator.getInstance(classContainer, mock);
+
+        verify(mock).instantiate(classContainer);
         verifyNoMoreInteractions(mock);
     }
 
     @Test
     public void getInstance_doesNotCallgetInstanceWhenInstanceAlreadyCached() throws Exception {
-        when(mock.instantiate(TestClass1.class)).thenReturn(new TestClass1());
+        DecoratedClass<TestClass1> classContainer = new DecoratedClass<>(TestClass1.class);
 
-        TestClass1 instance = singletonInstanceCreator.getInstance(TestClass1.class, mock);
-        TestClass1 instance2 = singletonInstanceCreator.getInstance(TestClass1.class, mock);
+        TestClass1 testClass1 = new TestClass1();
+
+        when(mock.instantiate(classContainer)).thenReturn(testClass1);
+
+        TestClass1 instance = singletonInstanceCreator.getInstance(classContainer, mock);
+        TestClass1 instance2 = singletonInstanceCreator.getInstance(classContainer, mock);
 
         assertThat(instance, sameInstance(instance2));
 
-        verify(mock).instantiate(TestClass1.class);
+        verify(mock).instantiate(classContainer);
         verifyNoMoreInteractions(mock);
     }
 
@@ -91,7 +98,7 @@ public class SingletonCacheStrategyTest {
     }
 
     private <T> Function<Class<T>, T> getFunctionForClass() {
-        return objectClass -> singletonInstanceCreator.getInstance(objectClass, mock);
+        return objectClass -> singletonInstanceCreator.getInstance(new DecoratedClass<>(objectClass), mock);
     }
 
 }

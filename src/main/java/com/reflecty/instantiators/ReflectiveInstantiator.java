@@ -2,10 +2,7 @@ package com.reflecty.instantiators;
 
 import com.reflecty.ObjectBuilderMachine;
 import com.reflecty.annotations.Namespace;
-import com.reflecty.configurations.BuildModule;
-import com.reflecty.configurations.NamespaceTypeMatcherImpl;
-import com.reflecty.configurations.TypeMatcher;
-import com.reflecty.configurations.TypeMatcherImpl;
+import com.reflecty.configurations.*;
 import com.reflecty.helperObjects.ObjectContainer;
 
 import java.lang.annotation.Annotation;
@@ -26,16 +23,17 @@ public class ReflectiveInstantiator implements Instantiator {
     }
 
     @Override
-    public <T> T instantiate(Class<T> clazz) {
+    public <T> T instantiate(DecoratedClass<T> classContainer) {
+        Class<T> containedClass = classContainer.getContainedClass();
         try {
             return newInstanceFromConstructor(
                     getRegisteredClass(
-                            clazz,
-                            new TypeMatcherImpl(clazz)
+                            containedClass,
+                            new TypeMatcherImpl(containedClass)
                     ).getDeclaredConstructors()[0]
             );
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Class: " + getRegisteredClass(clazz, new TypeMatcherImpl(clazz)).getName() + " does not have an appropriate constructor", e);
+            throw new RuntimeException("Class: " + getRegisteredClass(containedClass, new TypeMatcherImpl(containedClass)).getName() + " does not have an appropriate constructor", e);
         }
     }
 

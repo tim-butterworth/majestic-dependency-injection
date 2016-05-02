@@ -1,5 +1,6 @@
 package com.reflecty.creators;
 
+import com.reflecty.configurations.DecoratedClass;
 import com.reflecty.instantiators.ReflectiveInstantiator;
 
 public class DefaultInstanceCreator implements InstanceCreator {
@@ -11,7 +12,7 @@ public class DefaultInstanceCreator implements InstanceCreator {
     }
 
     @Override
-    public <T> T getInstance(Class<T> tClass) {
+    public <T> T getInstance(DecoratedClass<T> tClass) {
         return reflectiveInstantiator.instantiate(tClass);
     }
 }

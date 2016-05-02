@@ -1,6 +1,7 @@
 package com.reflecty.creators;
 
 import com.reflecty.configurations.BuildModule;
+import com.reflecty.configurations.DecoratedClass;
 import com.reflecty.helperObjects.ObjectContainer;
 import com.reflecty.instantiators.ReflectiveInstantiator;
 import org.junit.Before;
@@ -23,7 +24,7 @@ public class DefaultInstanceCreatorTest {
 
     @Test
     public void getInstance() throws Exception {
-        Object instance = defaultInstanceCreator.getInstance(Object.class);
+        Object instance = defaultInstanceCreator.getInstance(new DecoratedClass<>(Object.class));
 
         assertThat(instance, not(nullValue()));
     }

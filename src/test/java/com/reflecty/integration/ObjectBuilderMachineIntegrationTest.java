@@ -3,6 +3,7 @@ package com.reflecty.integration;
 import com.reflecty.ObjectBuilderMachine;
 import com.reflecty.builders.ObjectBuilderMachineBuilder;
 import com.reflecty.configurations.NamespaceTypeMatcherImpl;
+import com.reflecty.matchers.ConstantTypeContainer;
 import com.reflecty.testModels.*;
 import org.junit.Test;
 
@@ -68,17 +69,39 @@ public class ObjectBuilderMachineIntegrationTest {
 
     @Test
     public void createClassUsingAModule() throws Exception {
-        ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachineBuilder().register(ImplOne.class,
-                new NamespaceTypeMatcherImpl<>(
-                        "One",
-                        InterfaceForAnObject.class
+        ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachineBuilder()
+                .registerImplmentation(ImplOne.class,
+                        new NamespaceTypeMatcherImpl<>(
+                                "One",
+                                InterfaceForAnObject.class
+                        )
                 )
-        ).register(ImplTwo.class,
-                new NamespaceTypeMatcherImpl<>(
-                        "Two",
-                        InterfaceForAnObject.class
+                .registerImplmentation(ImplTwo.class,
+                        new NamespaceTypeMatcherImpl<>(
+                                "Two",
+                                InterfaceForAnObject.class
+                        )
                 )
-        ).build();
+                .build();
+
+        ConstructorWithAnnotatedParams instance = objectBuilderMachine.getInstance(ConstructorWithAnnotatedParams.class);
+
+        assertThat(instance.getFirstObj().getClassName(), is("ImplOne"));
+        assertThat(instance.getSecondObj().getClassName(), is("ImplTwo"));
+    }
+
+    @Test
+    public void createClassUsingAModule_withConstants() throws Exception {
+        ConstantTypeContainer<String> one = new ConstantTypeContainer<>(
+                "One",
+                String.class
+        );
+
+        ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachineBuilder()
+                .registerConstant(
+                        "A Constant String",
+                        one
+                ).build();
 
         ConstructorWithAnnotatedParams instance = objectBuilderMachine.getInstance(ConstructorWithAnnotatedParams.class);
 

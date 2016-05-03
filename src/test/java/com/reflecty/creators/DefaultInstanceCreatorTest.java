@@ -1,6 +1,5 @@
 package com.reflecty.creators;
 
-import com.reflecty.configurations.BuildModule;
 import com.reflecty.configurations.DecoratedClass;
 import com.reflecty.helperObjects.ObjectContainer;
 import com.reflecty.instantiators.ReflectiveInstantiator;
@@ -18,7 +17,7 @@ public class DefaultInstanceCreatorTest {
 
     @Before
     public void setUp() throws Exception {
-        reflectiveInstantiator = new ReflectiveInstantiator(new ObjectContainer<>(), new BuildModule());
+        reflectiveInstantiator = new ReflectiveInstantiator(new ObjectContainer<>());
         defaultInstanceCreator = new DefaultInstanceCreator(reflectiveInstantiator);
     }
 

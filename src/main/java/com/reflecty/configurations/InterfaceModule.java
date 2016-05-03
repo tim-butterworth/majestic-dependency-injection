@@ -4,10 +4,10 @@ import com.reflecty.annotations.Namespace;
 
 import java.util.*;
 
-public class BuildModule {
+public class InterfaceModule {
     private Map<Class<?>, Set<TypeMatcher>> registryCache = new HashMap<>();
 
-    public BuildModule register(Class<?> clazz, TypeMatcher matcher) {
+    public InterfaceModule register(Class<?> clazz, TypeMatcher matcher) {
         Set<TypeMatcher> typeMatchers = registryCache.get(clazz);
         if (typeMatchers == null) {
             typeMatchers = new HashSet<>();
@@ -17,15 +17,13 @@ public class BuildModule {
         return this;
     }
 
-    public Object getMatch(DecoratedClass<?> decoratedClass) {
-        Optional<? extends Class<?>> matchOptional = registryCache.entrySet().stream()
+    public <T> Class<T> getMatch(DecoratedClass<T> decoratedClass) {
+        return registryCache.entrySet().stream()
                 .flatMap(entry -> entry.getValue()
                         .stream()
                         .filter(value -> value.equals(getTypeMatcher(decoratedClass)))
-                        .map(value -> entry.getKey()))
-                .findFirst();
-
-        return matchOptional.orElse(null);
+                        .map(value -> (Class<T>) entry.getKey()))
+                .findFirst().orElse(decoratedClass.getContainedClass());
     }
 
     private TypeMatcher getTypeMatcher(DecoratedClass<?> decoratedClass) {

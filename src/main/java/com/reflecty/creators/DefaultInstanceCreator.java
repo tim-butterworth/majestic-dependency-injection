@@ -13,6 +13,6 @@ public class DefaultInstanceCreator implements InstanceCreator {
 
     @Override
     public <T> T getInstance(DecoratedClass<T> tClass) {
-        return reflectiveInstantiator.instantiate(tClass);
+        return reflectiveInstantiator.instantiate(tClass.getContainedClass());
     }
 }

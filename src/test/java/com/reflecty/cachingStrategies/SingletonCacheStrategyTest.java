@@ -58,9 +58,9 @@ public class SingletonCacheStrategyTest {
     public void getInstance_callsGetInstanceWhenInstanceIsNotChached() throws Exception {
         DecoratedClass<TestClass1> classContainer = new DecoratedClass<>(TestClass1.class);
 
-        singletonInstanceCreator.getInstance(classContainer, mock);
+        singletonInstanceCreator.getInstance(mock, classContainer.getContainedClass());
 
-        verify(mock).instantiate(classContainer);
+        verify(mock).instantiate(classContainer.getContainedClass());
         verifyNoMoreInteractions(mock);
     }
 
@@ -70,14 +70,14 @@ public class SingletonCacheStrategyTest {
 
         TestClass1 testClass1 = new TestClass1();
 
-        when(mock.instantiate(classContainer)).thenReturn(testClass1);
+        when(mock.instantiate(classContainer.getContainedClass())).thenReturn(testClass1);
 
-        TestClass1 instance = singletonInstanceCreator.getInstance(classContainer, mock);
-        TestClass1 instance2 = singletonInstanceCreator.getInstance(classContainer, mock);
+        TestClass1 instance = singletonInstanceCreator.getInstance(mock, classContainer.getContainedClass());
+        TestClass1 instance2 = singletonInstanceCreator.getInstance(mock, classContainer.getContainedClass());
 
         assertThat(instance, sameInstance(instance2));
 
-        verify(mock).instantiate(classContainer);
+        verify(mock).instantiate(classContainer.getContainedClass());
         verifyNoMoreInteractions(mock);
     }
 
@@ -98,7 +98,7 @@ public class SingletonCacheStrategyTest {
     }
 
     private <T> Function<Class<T>, T> getFunctionForClass() {
-        return objectClass -> singletonInstanceCreator.getInstance(new DecoratedClass<>(objectClass), mock);
+        return objectClass -> singletonInstanceCreator.getInstance(mock, objectClass);
     }
 
 }

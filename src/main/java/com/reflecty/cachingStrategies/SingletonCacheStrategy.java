@@ -1,6 +1,5 @@
 package com.reflecty.cachingStrategies;
 
-import com.reflecty.configurations.DecoratedClass;
 import com.reflecty.instantiators.Instantiator;
 
 import java.util.HashMap;
@@ -14,9 +13,8 @@ public class SingletonCacheStrategy implements CachingStrategy {
     }
 
     @Override
-    public <T> T getInstance(DecoratedClass<T> classContainer, Instantiator instantiator) {
+    public <T> T getInstance(Instantiator instantiator, Class<T> containedClass) {
         System.out.println("Thread " + Thread.currentThread().getName() + " is about to enter synchronized block");
-        Class<T> containedClass = classContainer.getContainedClass();
         synchronized (containedClass) {
             System.out.println("Thread " + Thread.currentThread().getName() + " entered synchronized block......" + containedClass.getName());
             sleepForALittleWhile();
@@ -24,7 +22,7 @@ public class SingletonCacheStrategy implements CachingStrategy {
             T instance = (T) singletonObjectCache.get(containedClass);
             if (notAlreadyCached(containedClass)) {
                 System.out.println("Entries in the map -> " + singletonObjectCache.entrySet().size());
-                instance = instantiator.instantiate(classContainer);
+                instance = instantiator.instantiate(containedClass);
                 singletonObjectCache.put(containedClass, instance);
             }
 

@@ -1,11 +1,8 @@
 package com.reflecty.creators;
 
 import com.reflecty.ObjectBuilderMachine;
-import com.reflecty.annotations.Namespace;
-import com.reflecty.configurations.BuildModule;
+import com.reflecty.configurations.InterfaceModule;
 import com.reflecty.configurations.DecoratedClass;
-import com.reflecty.configurations.NamespaceTypeMatcherImpl;
-import com.reflecty.configurations.TypeMatcherImpl;
 import com.reflecty.helperObjects.ObjectContainer;
 import com.reflecty.instantiators.ReflectiveInstantiator;
 import com.reflecty.testModels.*;
@@ -27,7 +24,7 @@ public class ReflectiveInstantiatorTest {
 
     private ReflectiveInstantiator reflectiveInstantiator;
     private ObjectBuilderMachine builderMachine;
-    private BuildModule module;
+    private InterfaceModule module;
 
     @Before
     public void setUp() throws Exception {
@@ -35,17 +32,17 @@ public class ReflectiveInstantiatorTest {
         builderMachine = mock(ObjectBuilderMachine.class);
         container.addToContainer(builderMachine);
 
-        module = mock(BuildModule.class);
+        module = mock(InterfaceModule.class);
 
         reflectiveInstantiator = new ReflectiveInstantiator(
-                container,
-                module
+                container
         );
     }
 
     @Test
     public void instantiate_worksForDefaultConstructors() throws Exception {
-        TestClass1 instantiate = reflectiveInstantiator.instantiate(new DecoratedClass<>(TestClass1.class));
+        final DecoratedClass<TestClass1> classContainer = new DecoratedClass<>(TestClass1.class);
+        TestClass1 instantiate = reflectiveInstantiator.instantiate(classContainer.getContainedClass());
 
         assertThat(instantiate, not(nullValue()));
     }
@@ -54,7 +51,8 @@ public class ReflectiveInstantiatorTest {
     public void instantiate_worksForConstructorWithParameters() throws Exception {
         when(builderMachine.getInstance(SingleTonClass.class)).thenReturn(new SingleTonClass());
 
-        ConstructorTonClass instantiate = reflectiveInstantiator.instantiate(new DecoratedClass<>(ConstructorTonClass.class));
+        final DecoratedClass<ConstructorTonClass> classContainer = new DecoratedClass<>(ConstructorTonClass.class);
+        ConstructorTonClass instantiate = reflectiveInstantiator.instantiate(classContainer.getContainedClass());
 
         assertThat(instantiate, not(nullValue()));
 
@@ -62,29 +60,14 @@ public class ReflectiveInstantiatorTest {
     }
 
     @Test
-    public void instantiate_worksRegisteredInterfaces() throws Exception {
-        DecoratedClass<InterfaceForAnObject> classContainer = new DecoratedClass<>(InterfaceForAnObject.class);
-
-        when(module.getMatch(eq(classContainer))).thenReturn(ImplOne.class);
-
-        InterfaceForAnObject instantiate = reflectiveInstantiator.instantiate(classContainer);
-
-        assertThat(instantiate, not(nullValue()));
-        assertThat(instantiate, instanceOf(ImplOne.class));
-    }
-
-    @Test
     public void instantiate_worksRegisteredInterfacesInConstuctorParams() throws Exception {
         Annotation[][] parameterAnnotations = ConstructorWithAnnotatedParams.class.getDeclaredConstructors()[0].getParameterAnnotations();
 
+        when(builderMachine.getInstance(InterfaceForAnObject.class, parameterAnnotations[0])).thenReturn(new ImplOne());
+        when(builderMachine.getInstance(InterfaceForAnObject.class, parameterAnnotations[1])).thenReturn(new ImplTwo());
 
-        when(module.getMatch(eq(new DecoratedClass<>(InterfaceForAnObject.class, parameterAnnotations[0])))).thenReturn(ImplOne.class);
-        when(module.getMatch(eq(new DecoratedClass<>(InterfaceForAnObject.class, parameterAnnotations[1])))).thenReturn(ImplTwo.class);
-
-        when(builderMachine.getInstance(ImplOne.class)).thenReturn(new ImplOne());
-        when(builderMachine.getInstance(ImplTwo.class)).thenReturn(new ImplTwo());
-
-        ConstructorWithAnnotatedParams instantiate = reflectiveInstantiator.instantiate(new DecoratedClass<>(ConstructorWithAnnotatedParams.class));
+        final DecoratedClass<ConstructorWithAnnotatedParams> classContainer = new DecoratedClass<>(ConstructorWithAnnotatedParams.class);
+        ConstructorWithAnnotatedParams instantiate = reflectiveInstantiator.instantiate(classContainer.getContainedClass());
 
         assertThat(instantiate, not(nullValue()));
         assertThat(instantiate.getFirstObj(), instanceOf(ImplOne.class));

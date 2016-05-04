@@ -29,27 +29,30 @@ public class ObjectBuilderMachine {
         this.interfaceModule = interfaceModule;
     }
 
-    public <T> T getInstance(Class<T> clazz, Annotation...extraAnnotations) {
+    public <T> T getInstance(Class<T> clazz, Annotation... extraAnnotations) {
         DecoratedClass<T> decoratedClass = new DecoratedClass<>(clazz, extraAnnotations);
         Class<T> match = interfaceModule.getMatch(decoratedClass);
 
         return instanceCreatorMachine.getInstance(
-                match,
+                new DecoratedClass<>(match, extraAnnotations),
                 getCachingStrategy(match),
-                getInstatiator(match, extraAnnotations)
+                getInstantiator(match, extraAnnotations)
         );
     }
 
-    private <T> Instantiator getInstatiator(Class<T> match, Annotation[] extraAnnotations) {
-        return instantatorMatcher.get(0).getObject();
-    }
-
     private <T> CachingStrategy getCachingStrategy(Class<T> match) {
-        List<ObjectMatcher<Class<?>, CachingStrategy>> matches = cachingStrategyMatcher.stream()
-                .filter(matcher -> matcher.matches(match))
-                .collect(Collectors.toList());
-
-        return matches.get(0).getObject();
+        return getMatchFromMatcherList(match, cachingStrategyMatcher);
     }
 
+    private <T> Instantiator getInstantiator(Class<T> match, Annotation[] extraAnnotations) {
+        return getMatchFromMatcherList(new DecoratedClass<>(match, extraAnnotations), instantatorMatcher);
+    }
+
+    private <T, K> T getMatchFromMatcherList(K key, List<ObjectMatcher<K, T>> matchOptions) {
+        return matchOptions.stream()
+                .filter(matcher -> matcher.matches(key))
+                .collect(Collectors.toList())
+                .get(0)
+                .getObject();
+    }
 }

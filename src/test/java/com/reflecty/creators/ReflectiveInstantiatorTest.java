@@ -42,7 +42,7 @@ public class ReflectiveInstantiatorTest {
     @Test
     public void instantiate_worksForDefaultConstructors() throws Exception {
         final DecoratedClass<TestClass1> classContainer = new DecoratedClass<>(TestClass1.class);
-        TestClass1 instantiate = reflectiveInstantiator.instantiate(classContainer.getContainedClass());
+        TestClass1 instantiate = reflectiveInstantiator.instantiate(classContainer);
 
         assertThat(instantiate, not(nullValue()));
     }
@@ -52,7 +52,7 @@ public class ReflectiveInstantiatorTest {
         when(builderMachine.getInstance(SingleTonClass.class)).thenReturn(new SingleTonClass());
 
         final DecoratedClass<ConstructorTonClass> classContainer = new DecoratedClass<>(ConstructorTonClass.class);
-        ConstructorTonClass instantiate = reflectiveInstantiator.instantiate(classContainer.getContainedClass());
+        ConstructorTonClass instantiate = reflectiveInstantiator.instantiate(classContainer);
 
         assertThat(instantiate, not(nullValue()));
 
@@ -67,7 +67,7 @@ public class ReflectiveInstantiatorTest {
         when(builderMachine.getInstance(InterfaceForAnObject.class, parameterAnnotations[1])).thenReturn(new ImplTwo());
 
         final DecoratedClass<ConstructorWithAnnotatedParams> classContainer = new DecoratedClass<>(ConstructorWithAnnotatedParams.class);
-        ConstructorWithAnnotatedParams instantiate = reflectiveInstantiator.instantiate(classContainer.getContainedClass());
+        ConstructorWithAnnotatedParams instantiate = reflectiveInstantiator.instantiate(classContainer);
 
         assertThat(instantiate, not(nullValue()));
         assertThat(instantiate.getFirstObj(), instanceOf(ImplOne.class));

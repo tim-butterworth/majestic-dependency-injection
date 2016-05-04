@@ -1,7 +1,5 @@
 package com.reflecty.configurations;
 
-import com.reflecty.matchers.ConstantTypeContainer;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -15,22 +13,28 @@ public class ConstantModule {
         registeredConstants = new HashMap<>();
     }
 
-    public <T> T findMatch(Class<T> tClass) {
-        Set<ConstantTypeContainer<?>> constantTypeMatchers = registeredConstants.get(tClass);
+    public <T> T findMatch(DecoratedClass<?> decoratedClass) {
+        Class<?> containedClass = decoratedClass.getContainedClass();
+
+        Set<ConstantTypeContainer<?>> constantTypeMatchers = registeredConstants.get(containedClass);
+        if(constantTypeMatchers==null) throw new RuntimeException("There is no constant registered for this type");
+
         ConstantTypeContainer<T> constantTypeContainer = constantTypeMatchers.stream()
-                .filter(matcher -> matcher.matches(tClass))
+                .filter(matcher -> matcher.matches(decoratedClass))
                 .map(container -> (ConstantTypeContainer<T>) container)
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException(""));
+                .orElseThrow(() -> new RuntimeException("No match was found"));
 
         return constantTypeContainer.getConstant();
     }
 
-    public <T> void register(Class<T> testClass1Class, ConstantTypeContainer<T> tConstantTypeMatcher) {
-        Set<ConstantTypeContainer<?>> constantTypeMatchers = registeredConstants.get(testClass1Class);
+    public <T> void register(ConstantTypeContainer<T> tConstantTypeMatcher) {
+        Class<?> aClass = tConstantTypeMatcher.getConstantClass();
+
+        Set<ConstantTypeContainer<?>> constantTypeMatchers = registeredConstants.get(aClass);
         if (constantTypeMatchers == null) {
             constantTypeMatchers = new HashSet<>();
-            registeredConstants.put(testClass1Class, constantTypeMatchers);
+            registeredConstants.put(aClass, constantTypeMatchers);
         }
         constantTypeMatchers.add(tConstantTypeMatcher);
     }

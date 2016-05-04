@@ -31,10 +31,10 @@ public class InstanceCreatorMachineTest {
 
         TestClass expectedInstance = mock(TestClass.class);
 
-        when(cachingStrategy.getInstance(defaultInstantiator, decoratedClass.getContainedClass())).thenReturn(expectedInstance);
+        when(cachingStrategy.getInstance(defaultInstantiator, decoratedClass)).thenReturn(expectedInstance);
         when(module.getMatch(decoratedClass)).thenReturn(TestClass.class);
 
-        TestClass instance = instanceCreatorMachine.getInstance(TestClass.class, cachingStrategy, defaultInstantiator);
+        TestClass instance = instanceCreatorMachine.getInstance(new DecoratedClass<>(TestClass.class), cachingStrategy, defaultInstantiator);
 
         assertThat(instance, sameInstance(expectedInstance));
     }

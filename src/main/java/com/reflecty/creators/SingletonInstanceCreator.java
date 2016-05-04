@@ -27,7 +27,7 @@ public class SingletonInstanceCreator implements InstanceCreator {
             T instance = (T) singletonObjectCache.get(classContainer);
             if (notAlreadyCached(containedClass)) {
                 System.out.println("Entries in the map -> " + singletonObjectCache.entrySet().size());
-                instance = reflectiveInstantiator.instantiate(classContainer.getContainedClass());
+                instance = reflectiveInstantiator.instantiate(classContainer);
                 singletonObjectCache.put(containedClass, instance);
             }
 

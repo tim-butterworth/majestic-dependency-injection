@@ -2,11 +2,15 @@ package com.reflecty.integration;
 
 import com.reflecty.ObjectBuilderMachine;
 import com.reflecty.builders.ObjectBuilderMachineBuilder;
+import com.reflecty.configurations.ConstantTypeContainerImpl;
+import com.reflecty.configurations.NamespaceConstantTypeContainer;
 import com.reflecty.configurations.NamespaceTypeMatcherImpl;
-import com.reflecty.matchers.ConstantTypeContainer;
+import com.reflecty.configurations.ConstantTypeContainer;
 import com.reflecty.testModels.*;
+import com.sun.xml.internal.fastinfoset.stax.events.EmptyIterator;
 import org.junit.Test;
 
+import static com.sun.xml.internal.fastinfoset.stax.events.EmptyIterator.instance;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -92,20 +96,45 @@ public class ObjectBuilderMachineIntegrationTest {
 
     @Test
     public void createClassUsingAModule_withConstants() throws Exception {
-        ConstantTypeContainer<String> one = new ConstantTypeContainer<>(
-                "One",
+        ConstantTypeContainer<String> one = new ConstantTypeContainerImpl<>(
+                "One constant",
                 String.class
         );
 
         ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachineBuilder()
                 .registerConstant(
-                        "A Constant String",
+                        String.class,
                         one
                 ).build();
 
-        ConstructorWithAnnotatedParams instance = objectBuilderMachine.getInstance(ConstructorWithAnnotatedParams.class);
+        ConstantTonClass instance = objectBuilderMachine.getInstance(ConstantTonClass.class);
 
-        assertThat(instance.getFirstObj().getClassName(), is("ImplOne"));
-        assertThat(instance.getSecondObj().getClassName(), is("ImplTwo"));
+        assertThat(instance.getString(), is("One constant"));
     }
+
+    @Test
+    public void createClassUsingAModule_withNamespacedConstants() throws Exception {
+        NamespaceConstantTypeContainer<String> one = new NamespaceConstantTypeContainer<>(
+                "value.that.is.constant.one",
+                "One constant",
+                String.class
+        );
+
+        NamespaceConstantTypeContainer<Long> two = new NamespaceConstantTypeContainer<>(
+                "value.that.is.constant.two",
+                31415L,
+                Long.class
+        );
+
+        ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachineBuilder()
+                .registerConstant(String.class, one)
+                .registerConstant(Long.class, two)
+                .build();
+
+        NamespaceConstantTonClass instance = objectBuilderMachine.getInstance(NamespaceConstantTonClass.class);
+
+        assertThat(instance.getOne(), is("One constant"));
+        assertThat(instance.getTwo(), is(31415L));
+    }
+
 }

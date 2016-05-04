@@ -1,6 +1,7 @@
 package com.reflecty.instantiators;
 
 import com.reflecty.ObjectBuilderMachine;
+import com.reflecty.configurations.DecoratedClass;
 import com.reflecty.helperObjects.ObjectContainer;
 
 import java.lang.annotation.Annotation;
@@ -18,11 +19,11 @@ public class ReflectiveInstantiator implements Instantiator {
     }
 
     @Override
-    public <T> T instantiate(Class<T> containedClass) {
+    public <T> T instantiate(DecoratedClass<T> decoratedClass) {
         try {
-            return newInstanceFromConstructor(containedClass.getDeclaredConstructors()[0]);
+            return newInstanceFromConstructor(decoratedClass.getContainedClass().getDeclaredConstructors()[0]);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Class: " + containedClass + " does not have an appropriate constructor", e);
+            throw new RuntimeException("Class: " + decoratedClass + " does not have an appropriate constructor", e);
         }
     }
 

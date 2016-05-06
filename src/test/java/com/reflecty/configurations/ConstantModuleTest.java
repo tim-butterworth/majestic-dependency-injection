@@ -1,6 +1,7 @@
 package com.reflecty.configurations;
 
 import com.reflecty.annotations.Constant;
+import com.reflecty.annotations.Namespace;
 import com.reflecty.testModels.TestClass1;
 import org.junit.Before;
 import org.junit.Rule;
@@ -9,6 +10,7 @@ import org.junit.rules.ExpectedException;
 
 import java.lang.annotation.Annotation;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.*;
@@ -53,6 +55,41 @@ public class ConstantModuleTest {
 
         constantModule.register(new NamespaceConstantTypeContainer<>("namespace", "value", String.class));
         constantModule.findMatch(new DecoratedClass<>(String.class));
+    }
+
+    @Test
+    public void findMatch_theSecondMatchingConstantShouldReplaceTheFirst() throws Exception {
+        constantModule.register(new ConstantTypeContainerImpl<>("string 1", String.class));
+        constantModule.register(new ConstantTypeContainerImpl<>("string 2", String.class));
+        constantModule.register(new ConstantTypeContainerImpl<>("string 3", String.class));
+        constantModule.register(new ConstantTypeContainerImpl<>("string 4", String.class));
+        constantModule.register(new ConstantTypeContainerImpl<>("string 1", String.class));
+
+        String match = constantModule.findMatch(new DecoratedClass<>(String.class));
+
+        assertThat(match, is("string 1"));
+    }
+
+    @Test
+    public void findMatch_theSecondMatchingNamespacedConstantShouldReplaceTheFirst() throws Exception {
+        constantModule.register(new NamespaceConstantTypeContainer<>("constant.namespace", "string 1", String.class));
+        constantModule.register(new NamespaceConstantTypeContainer<>("constant.namespace", "string 2", String.class));
+
+        Constant namespaceAnnotation = new Constant() {
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return Constant.class;
+            }
+
+            @Override
+            public String value() {
+                return "constant.namespace";
+            }
+        };
+
+        String match = constantModule.findMatch(new DecoratedClass<>(String.class, namespaceAnnotation));
+
+        assertThat(match, is("string 2"));
     }
 
     @Test

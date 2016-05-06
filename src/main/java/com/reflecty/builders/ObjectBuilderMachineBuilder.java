@@ -14,6 +14,7 @@ import com.reflecty.creators.InstanceCreatorMachine;
 import com.reflecty.helperObjects.ObjectContainer;
 import com.reflecty.instantiators.ConstantInstantiator;
 import com.reflecty.instantiators.Instantiator;
+import com.reflecty.instantiators.ProxiedInterfaceInstantiator;
 import com.reflecty.instantiators.ReflectiveInstantiator;
 import com.reflecty.configurations.ConstantTypeContainer;
 import com.reflecty.matchers.ObjectMatcher;
@@ -79,8 +80,10 @@ public class ObjectBuilderMachineBuilder {
                 .filter(annotation -> annotation instanceof Constant)
                 .collect(Collectors.toList())
                 .isEmpty();
+        Function<DecoratedClass<?>, Boolean> matchProxieInterfaceInstantiator = decoratedClass -> decoratedClass.getContainedClass().isInterface();
 
         return Arrays.asList(
+                new ObjectMatcher<>(matchProxieInterfaceInstantiator, new ProxiedInterfaceInstantiator()),
                 new ObjectMatcher<>(matchConstantInstantiator, new ConstantInstantiator(constantModule)),
                 new ObjectMatcher<>(matchAllForInstantiator, new ReflectiveInstantiator(objectBuilderMachineObjectContainer))
         );

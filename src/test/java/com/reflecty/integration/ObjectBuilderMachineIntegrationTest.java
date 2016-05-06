@@ -7,10 +7,9 @@ import com.reflecty.configurations.NamespaceConstantTypeContainer;
 import com.reflecty.configurations.NamespaceTypeMatcherImpl;
 import com.reflecty.configurations.ConstantTypeContainer;
 import com.reflecty.testModels.*;
-import com.sun.xml.internal.fastinfoset.stax.events.EmptyIterator;
 import org.junit.Test;
 
-import static com.sun.xml.internal.fastinfoset.stax.events.EmptyIterator.instance;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -136,5 +135,36 @@ public class ObjectBuilderMachineIntegrationTest {
         assertThat(instance.getOne(), is("One constant"));
         assertThat(instance.getTwo(), is(31415L));
     }
+
+    @Test
+    public void createAProxiedClass_onlyStringValue() throws Exception {
+        ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachineBuilder().build();
+
+        RandomStringInterface instance = objectBuilderMachine.getInstance(RandomStringInterface.class);
+        RandomStringInterface instance2 = objectBuilderMachine.getInstance(RandomStringInterface.class);
+
+        String aString1 = instance.getAString();
+        String aString2 = instance2.getAString();
+
+        assertThat(aString1, not(nullValue()));
+        assertThat(aString2, not(nullValue()));
+        assertThat(aString1, not(equalTo(aString2)));
+    }
+
+    @Test
+    public void createASingletonProxiedClass_onlyStringValue() throws Exception {
+        ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachineBuilder().build();
+
+        RandomSingletonStringInterface instance = objectBuilderMachine.getInstance(RandomSingletonStringInterface.class);
+        RandomSingletonStringInterface instance1 = objectBuilderMachine.getInstance(RandomSingletonStringInterface.class);
+
+        String aString1 = instance.getSomeValue();
+        String aString2 = instance1.getSomeValue();
+
+        assertThat(aString1, not(nullValue()));
+        assertThat(aString2, not(nullValue()));
+        assertThat(aString1, equalTo(aString2));
+    }
+
 
 }

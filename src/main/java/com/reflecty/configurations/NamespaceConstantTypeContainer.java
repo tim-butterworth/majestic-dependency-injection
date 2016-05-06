@@ -37,4 +37,23 @@ public class NamespaceConstantTypeContainer<T> implements ConstantTypeContainer<
     public Class<T> getConstantClass() {
         return tClass;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        NamespaceConstantTypeContainer<?> that = (NamespaceConstantTypeContainer<?>) o;
+
+        if (namespace != null ? !namespace.equals(that.namespace) : that.namespace != null) return false;
+        return tClass != null ? tClass.equals(that.tClass) : that.tClass == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = namespace != null ? namespace.hashCode() : 0;
+        result = 31 * result + (tClass != null ? tClass.hashCode() : 0);
+        return result;
+    }
 }

@@ -19,10 +19,10 @@ public class SingletonCacheStrategy implements CachingStrategy {
         Class<T> tClass = decoratedClass.getContainedClass();
         synchronized (tClass) {
             System.out.println("Thread " + Thread.currentThread().getName() + " entered synchronized block......" + tClass.getName());
-            sleepForALittleWhile();
 
             T instance = (T) singletonObjectCache.get(decoratedClass.getContainedClass());
             if (notAlreadyCached(tClass)) {
+                sleepForALittleWhile();
                 System.out.println("Entries in the map -> " + singletonObjectCache.entrySet().size());
                 instance = instantiator.instantiate(decoratedClass);
                 singletonObjectCache.put(tClass, instance);

@@ -171,11 +171,9 @@ public class ObjectBuilderMachineIntegrationTest {
     public void createAChainOfClasses() throws Exception {
         ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachineBuilder().build();
 
-        NodeChain nodeChainInstance = objectBuilderMachine.getInstance(NodeChain.class);
-
-        NodeChain current = nodeChainInstance;
+        NodeChain current = objectBuilderMachine.getInstance(NodeChain.class);
         int i = 0;
-        while (i < 100) {
+        while (i < 10) {
             NodeChain previous = current;
             NodeChain next = current.next();
             current = next;

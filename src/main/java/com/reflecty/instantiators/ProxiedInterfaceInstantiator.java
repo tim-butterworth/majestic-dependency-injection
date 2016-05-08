@@ -21,8 +21,8 @@ public class ProxiedInterfaceInstantiator implements Instantiator {
                 .orElse(false);
 
         Class<T> containedClass = decoratedClass.getContainedClass();
-        if(isObjectProvider) {
-            Class<?> type = (Class<?>)((ParameterizedTypeImpl) containedClass.getGenericInterfaces()[0]).getActualTypeArguments()[0];
+        if (isObjectProvider) {
+            Class<?> type = (Class<?>) ((ParameterizedTypeImpl) containedClass.getGenericInterfaces()[0]).getActualTypeArguments()[0];
             return getProxyInstance(containedClass, ((a, b, c) -> type.newInstance()));
         }
 

@@ -36,6 +36,10 @@ public class ConstantModule {
             constantTypeMatchers = new HashSet<>();
             registeredConstants.put(aClass, constantTypeMatchers);
         }
-        constantTypeMatchers.add(tConstantTypeMatcher);
+
+        if(!constantTypeMatchers.add(tConstantTypeMatcher)) {
+            constantTypeMatchers.remove(tConstantTypeMatcher);
+            constantTypeMatchers.add(tConstantTypeMatcher);
+        }
     }
 }

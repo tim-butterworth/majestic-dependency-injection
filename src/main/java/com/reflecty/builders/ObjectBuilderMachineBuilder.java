@@ -83,7 +83,7 @@ public class ObjectBuilderMachineBuilder {
         Function<DecoratedClass<?>, Boolean> matchProxieInterfaceInstantiator = decoratedClass -> decoratedClass.getContainedClass().isInterface();
 
         return Arrays.asList(
-                new ObjectMatcher<>(matchProxieInterfaceInstantiator, new ProxiedInterfaceInstantiator()),
+                new ObjectMatcher<>(matchProxieInterfaceInstantiator, new ProxiedInterfaceInstantiator(objectBuilderMachineObjectContainer)),
                 new ObjectMatcher<>(matchConstantInstantiator, new ConstantInstantiator(constantModule)),
                 new ObjectMatcher<>(matchAllForInstantiator, new ReflectiveInstantiator(objectBuilderMachineObjectContainer))
         );

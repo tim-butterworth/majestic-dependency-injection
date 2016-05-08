@@ -1,17 +1,24 @@
 package com.reflecty.instantiators;
 
+import com.reflecty.ObjectBuilderMachine;
 import com.reflecty.configurations.DecoratedClass;
 import com.reflecty.configurations.ObjectProvider;
+import com.reflecty.helperObjects.ObjectContainer;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Random;
 
 public class ProxiedInterfaceInstantiator implements Instantiator {
+
+    private ObjectContainer<ObjectBuilderMachine> builderMachineContainer;
+
+    public ProxiedInterfaceInstantiator(ObjectContainer<ObjectBuilderMachine> builderMachineContainer) {
+        this.builderMachineContainer = builderMachineContainer;
+    }
+
     @Override
     public <T> T instantiate(DecoratedClass<T> decoratedClass) {
         Boolean isObjectProvider = Arrays.asList(decoratedClass.getContainedClass().getInterfaces()).stream()
@@ -22,8 +29,8 @@ public class ProxiedInterfaceInstantiator implements Instantiator {
 
         Class<T> containedClass = decoratedClass.getContainedClass();
         if (isObjectProvider) {
-            Class<?> type = (Class<?>) ((ParameterizedTypeImpl) containedClass.getGenericInterfaces()[0]).getActualTypeArguments()[0];
-            return getProxyInstance(containedClass, ((a, b, c) -> type.newInstance()));
+            Class<?> providedClass = (Class<?>) ((ParameterizedTypeImpl) containedClass.getGenericInterfaces()[0]).getActualTypeArguments()[0];
+            return getProxyInstance(containedClass, ((a, b, c) -> builderMachineContainer.getContents().getInstance(providedClass)));
         }
 
         String randomString = getRandomString();

@@ -7,6 +7,7 @@ import com.reflecty.configurations.NamespaceConstantTypeContainer;
 import com.reflecty.configurations.NamespaceTypeMatcherImpl;
 import com.reflecty.configurations.ConstantTypeContainer;
 import com.reflecty.testModels.*;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -166,5 +167,22 @@ public class ObjectBuilderMachineIntegrationTest {
         assertThat(aString1, equalTo(aString2));
     }
 
+    @Test
+    public void createAChainOfClasses() throws Exception {
+        ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachineBuilder().build();
 
+        NodeChain nodeChainInstance = objectBuilderMachine.getInstance(NodeChain.class);
+
+        NodeChain current = nodeChainInstance;
+        int i = 0;
+        while (i < 100) {
+            NodeChain previous = current;
+            NodeChain next = current.next();
+            current = next;
+
+            assertThat(next, not(nullValue()));
+            assertThat(previous, not(sameInstance(next)));
+            i++;
+        }
+    }
 }

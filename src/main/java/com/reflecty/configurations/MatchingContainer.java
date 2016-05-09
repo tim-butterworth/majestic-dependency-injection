@@ -1,7 +1,7 @@
 package com.reflecty.configurations;
 
-public interface ConstantTypeContainer<T> {
+public interface MatchingContainer<T> {
     boolean matches(DecoratedClass<?> aClass);
-    T getConstant();
+    T getContent();
     Class<T> getConstantClass();
 }

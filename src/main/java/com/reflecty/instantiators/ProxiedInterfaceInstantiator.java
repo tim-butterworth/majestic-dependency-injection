@@ -2,7 +2,7 @@ package com.reflecty.instantiators;
 
 import com.reflecty.ObjectBuilderMachine;
 import com.reflecty.configurations.DecoratedClass;
-import com.reflecty.configurations.ObjectProvider;
+import com.reflecty.providers.ObjectProvider;
 import com.reflecty.helperObjects.ObjectContainer;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 

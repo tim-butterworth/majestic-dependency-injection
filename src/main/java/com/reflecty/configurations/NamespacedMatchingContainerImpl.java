@@ -4,13 +4,13 @@ import com.reflecty.annotations.Constant;
 
 import java.util.Arrays;
 
-public class NamespaceConstantTypeContainer<T> implements ConstantTypeContainer<T> {
+public class NamespacedMatchingContainerImpl<T> implements MatchingContainer<T> {
 
     private final String namespace;
     private final T value;
     private final Class<T> tClass;
 
-    public NamespaceConstantTypeContainer(String namespace, T constant, Class<T> tClass) {
+    public NamespacedMatchingContainerImpl(String namespace, T constant, Class<T> tClass) {
         this.namespace = namespace;
         this.value = constant;
         this.tClass = tClass;
@@ -29,7 +29,7 @@ public class NamespaceConstantTypeContainer<T> implements ConstantTypeContainer<
     }
 
     @Override
-    public T getConstant() {
+    public T getContent() {
         return value;
     }
 
@@ -43,7 +43,7 @@ public class NamespaceConstantTypeContainer<T> implements ConstantTypeContainer<
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        NamespaceConstantTypeContainer<?> that = (NamespaceConstantTypeContainer<?>) o;
+        NamespacedMatchingContainerImpl<?> that = (NamespacedMatchingContainerImpl<?>) o;
 
         if (namespace != null ? !namespace.equals(that.namespace) : that.namespace != null) return false;
         return tClass != null ? tClass.equals(that.tClass) : that.tClass == null;

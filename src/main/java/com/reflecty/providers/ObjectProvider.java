@@ -1,4 +1,4 @@
-package com.reflecty.configurations;
+package com.reflecty.providers;
 
 public interface ObjectProvider<T> {
     T getInstance();

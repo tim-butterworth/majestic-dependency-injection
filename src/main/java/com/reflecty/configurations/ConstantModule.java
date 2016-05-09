@@ -1,45 +1,30 @@
 package com.reflecty.configurations;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class ConstantModule {
 
-    private Map<Class<?>, Set<ConstantTypeContainer<?>>> registeredConstants;
+    private Set<MatchingContainer<?>> matcherSet;
 
     public ConstantModule() {
-        registeredConstants = new HashMap<>();
+        matcherSet = new HashSet<>();
     }
 
     public <T> T findMatch(DecoratedClass<?> decoratedClass) {
-        Class<?> containedClass = decoratedClass.getContainedClass();
-
-        Set<ConstantTypeContainer<?>> constantTypeMatchers = registeredConstants.get(containedClass);
-        if(constantTypeMatchers==null) throw new RuntimeException("There is no constant registered for this type");
-
-        ConstantTypeContainer<T> constantTypeContainer = constantTypeMatchers.stream()
+        MatchingContainer<T> matchingContainer = matcherSet.stream()
                 .filter(matcher -> matcher.matches(decoratedClass))
-                .map(container -> (ConstantTypeContainer<T>) container)
+                .map(container -> (MatchingContainer<T>) container)
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("No match was found"));
 
-        return constantTypeContainer.getConstant();
+        return matchingContainer.getContent();
     }
 
-    public <T> void register(ConstantTypeContainer<T> tConstantTypeMatcher) {
-        Class<?> aClass = tConstantTypeMatcher.getConstantClass();
-
-        Set<ConstantTypeContainer<?>> constantTypeMatchers = registeredConstants.get(aClass);
-        if (constantTypeMatchers == null) {
-            constantTypeMatchers = new HashSet<>();
-            registeredConstants.put(aClass, constantTypeMatchers);
-        }
-
-        if(!constantTypeMatchers.add(tConstantTypeMatcher)) {
-            constantTypeMatchers.remove(tConstantTypeMatcher);
-            constantTypeMatchers.add(tConstantTypeMatcher);
+    public <T> void register(MatchingContainer<T> tConstantTypeMatcher) {
+        if(!matcherSet.add(tConstantTypeMatcher)) {
+            matcherSet.remove(tConstantTypeMatcher);
+            matcherSet.add(tConstantTypeMatcher);
         }
     }
 }

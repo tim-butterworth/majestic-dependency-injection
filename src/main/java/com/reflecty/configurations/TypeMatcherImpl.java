@@ -15,7 +15,6 @@ public class TypeMatcherImpl<T> implements TypeMatcher<T> {
         TypeMatcherImpl that = (TypeMatcherImpl) o;
 
         return aClass != null ? aClass.equals(that.aClass) : that.aClass == null;
-
     }
 
     @Override

@@ -10,10 +10,10 @@ import java.lang.annotation.Annotation;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
-public class NamespaceConstantTypeContainerTest {
+public class NamespacedMatchingContainerImplTest {
     @Test
     public void matches_returnsTrueWhenTheDecoratedClassIsTheSameClassAndHasTheSameNamespace() throws Exception {
-        NamespaceConstantTypeContainer<TestClass1> namespace = new NamespaceConstantTypeContainer<>("namespace", new TestClass1(), TestClass1.class);
+        NamespacedMatchingContainerImpl<TestClass1> namespace = new NamespacedMatchingContainerImpl<>("namespace", new TestClass1(), TestClass1.class);
 
         Constant constant = getConstant("namespace");
 
@@ -22,7 +22,7 @@ public class NamespaceConstantTypeContainerTest {
 
     @Test
     public void matches_returnsFalseWhenTheDecoratedClassIsTheSameClassAndHasADifferentNamespace() throws Exception {
-        NamespaceConstantTypeContainer<TestClass1> namespace = new NamespaceConstantTypeContainer<>("namespace", new TestClass1(), TestClass1.class);
+        NamespacedMatchingContainerImpl<TestClass1> namespace = new NamespacedMatchingContainerImpl<>("namespace", new TestClass1(), TestClass1.class);
 
         Constant constant = getConstant("non-matching-namespace");
 
@@ -31,7 +31,7 @@ public class NamespaceConstantTypeContainerTest {
 
     @Test
     public void matches_returnsFalseWhenTheDecoratedClassIsADifferentClassButHastheSameNamespace() throws Exception {
-        NamespaceConstantTypeContainer<TestClass1> namespace = new NamespaceConstantTypeContainer<>("namespace", new TestClass1(), TestClass1.class);
+        NamespacedMatchingContainerImpl<TestClass1> namespace = new NamespacedMatchingContainerImpl<>("namespace", new TestClass1(), TestClass1.class);
 
         Constant constant = getConstant("namespace");
 
@@ -40,7 +40,7 @@ public class NamespaceConstantTypeContainerTest {
 
     @Test
     public void matches_ifDecoratedClassHasNoAnnotation() throws Exception {
-        NamespaceConstantTypeContainer<TestClass1> namespace = new NamespaceConstantTypeContainer<>("namespace", new TestClass1(), TestClass1.class);
+        NamespacedMatchingContainerImpl<TestClass1> namespace = new NamespacedMatchingContainerImpl<>("namespace", new TestClass1(), TestClass1.class);
 
         assertThat(namespace.matches(new DecoratedClass<>(TestClass2.class)), is(false));
     }

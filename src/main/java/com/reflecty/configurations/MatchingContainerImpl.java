@@ -1,11 +1,11 @@
 package com.reflecty.configurations;
 
-public class ConstantTypeContainerImpl<T> implements ConstantTypeContainer<T> {
+public class MatchingContainerImpl<T> implements MatchingContainer<T> {
 
     private final T constant;
     private final Class<T> constantClass;
 
-    public ConstantTypeContainerImpl(T constant, Class<T> tClass) {
+    public MatchingContainerImpl(T constant, Class<T> tClass) {
         this.constant = constant;
         this.constantClass = tClass;
     }
@@ -16,7 +16,7 @@ public class ConstantTypeContainerImpl<T> implements ConstantTypeContainer<T> {
     }
 
     @Override
-    public T getConstant() {
+    public T getContent() {
         return constant;
     }
 
@@ -30,7 +30,7 @@ public class ConstantTypeContainerImpl<T> implements ConstantTypeContainer<T> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ConstantTypeContainerImpl<?> that = (ConstantTypeContainerImpl<?>) o;
+        MatchingContainerImpl<?> that = (MatchingContainerImpl<?>) o;
 
         return constantClass != null ? constantClass.equals(that.constantClass) : that.constantClass == null;
     }

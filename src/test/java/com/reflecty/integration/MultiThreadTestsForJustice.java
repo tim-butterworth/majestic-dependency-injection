@@ -54,11 +54,9 @@ public class MultiThreadTestsForJustice {
     public void not_singletony_whenNotAnnotatedWithSingleton_isThreadSafeProbably_evenForRegisteredClasses() throws Exception {
         objectBuilderMachine = new ObjectBuilderMachineBuilder()
                 .registerImplmentation(
-                        ImplOne.class,
-                        new NamespaceTypeMatcherImpl<>("One", InterfaceForAnObject.class)
+                        new NamespaceTypeMatcherImpl<>("One", InterfaceForAnObject.class), ImplOne.class
                 ).registerImplmentation(
-                        ImplTwo.class,
-                        new NamespaceTypeMatcherImpl<>("Two", InterfaceForAnObject.class)
+                        new NamespaceTypeMatcherImpl<>("Two", InterfaceForAnObject.class), ImplTwo.class
                 ).build();
 
         Function<Class<ConstructorWithAnnotatedParams>, ConstructorWithAnnotatedParams> function = clazz -> objectBuilderMachine.getInstance(clazz);

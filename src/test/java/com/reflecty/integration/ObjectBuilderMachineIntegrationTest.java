@@ -2,17 +2,11 @@ package com.reflecty.integration;
 
 import com.reflecty.ObjectBuilderMachine;
 import com.reflecty.builders.ObjectBuilderMachineBuilder;
-import com.reflecty.configurations.ConstantTypeContainerImpl;
-import com.reflecty.configurations.NamespaceConstantTypeContainer;
-import com.reflecty.configurations.NamespaceTypeMatcherImpl;
-import com.reflecty.configurations.ConstantTypeContainer;
+import com.reflecty.configurations.*;
 import com.reflecty.testModels.*;
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -74,17 +68,15 @@ public class ObjectBuilderMachineIntegrationTest {
     @Test
     public void createClassUsingAModule() throws Exception {
         ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachineBuilder()
-                .registerImplmentation(ImplOne.class,
-                        new NamespaceTypeMatcherImpl<>(
-                                "One",
-                                InterfaceForAnObject.class
-                        )
+                .registerImplmentation(new NamespaceTypeMatcherImpl<>(
+                        "One",
+                        InterfaceForAnObject.class
+                ), ImplOne.class
                 )
-                .registerImplmentation(ImplTwo.class,
-                        new NamespaceTypeMatcherImpl<>(
-                                "Two",
-                                InterfaceForAnObject.class
-                        )
+                .registerImplmentation(new NamespaceTypeMatcherImpl<>(
+                        "Two",
+                        InterfaceForAnObject.class
+                ), ImplTwo.class
                 )
                 .build();
 
@@ -96,16 +88,12 @@ public class ObjectBuilderMachineIntegrationTest {
 
     @Test
     public void createClassUsingAModule_withConstants() throws Exception {
-        ConstantTypeContainer<String> one = new ConstantTypeContainerImpl<>(
+        MatchingContainer<String> one = new MatchingContainerImpl<>(
                 "One constant",
                 String.class
         );
 
-        ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachineBuilder()
-                .registerConstant(
-                        String.class,
-                        one
-                ).build();
+        ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachineBuilder().registerConstant(one).build();
 
         ConstantTonClass instance = objectBuilderMachine.getInstance(ConstantTonClass.class);
 
@@ -114,21 +102,21 @@ public class ObjectBuilderMachineIntegrationTest {
 
     @Test
     public void createClassUsingAModule_withNamespacedConstants() throws Exception {
-        NamespaceConstantTypeContainer<String> one = new NamespaceConstantTypeContainer<>(
+        NamespacedMatchingContainerImpl<String> one = new NamespacedMatchingContainerImpl<>(
                 "value.that.is.constant.one",
                 "One constant",
                 String.class
         );
 
-        NamespaceConstantTypeContainer<Long> two = new NamespaceConstantTypeContainer<>(
+        NamespacedMatchingContainerImpl<Long> two = new NamespacedMatchingContainerImpl<>(
                 "value.that.is.constant.two",
                 31415L,
                 Long.class
         );
 
         ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachineBuilder()
-                .registerConstant(String.class, one)
-                .registerConstant(Long.class, two)
+                .registerConstant(one)
+                .registerConstant(two)
                 .build();
 
         NamespaceConstantTonClass instance = objectBuilderMachine.getInstance(NamespaceConstantTonClass.class);
@@ -182,5 +170,19 @@ public class ObjectBuilderMachineIntegrationTest {
             assertThat(previous, not(sameInstance(next)));
             i++;
         }
+    }
+
+    @Test
+    public void createAProviderManually() throws Exception {
+        ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachineBuilder()
+                .registerImplmentation(
+                        new NamespaceTypeMatcherImpl<>("OracleFactory", FancyFactory.class), OracleFancyFactoryImpl.class
+                ).build();
+
+        CustomInstanceProvider instance = objectBuilderMachine.getInstance(CustomInstanceProvider.class);
+
+        FancyFactory fancyFactory = instance.getInstance().getFancyFactory();
+
+        assertThat(fancyFactory, instanceOf(OracleFancyFactoryImpl.class));
     }
 }

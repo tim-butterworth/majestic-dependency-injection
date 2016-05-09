@@ -18,19 +18,21 @@ public class SingletonCacheStrategy implements CachingStrategy {
         System.out.println("Thread " + Thread.currentThread().getName() + " is about to enter synchronized block");
         Class<T> tClass = decoratedClass.getContainedClass();
         synchronized (tClass) {
-            System.out.println("Thread " + Thread.currentThread().getName() + " entered synchronized block......" + tClass.getName());
-
-            T instance = (T) singletonObjectCache.get(decoratedClass.getContainedClass());
-            if (notAlreadyCached(tClass)) {
-                sleepForALittleWhile();
-                System.out.println("Entries in the map -> " + singletonObjectCache.entrySet().size());
-                instance = instantiator.instantiate(decoratedClass);
-                singletonObjectCache.put(tClass, instance);
-            }
-
-            System.out.println("exited synchronized block.....");
-            return instance;
+            return createOrGetFromCache(instantiator, decoratedClass, tClass);
         }
+    }
+
+    private <T> T createOrGetFromCache(Instantiator instantiator, DecoratedClass<T> decoratedClass, Class<T> tClass) {
+        System.out.println("Thread " + Thread.currentThread().getName() + " entered synchronized block......" + tClass.getName());
+        T instance = (T) singletonObjectCache.get(decoratedClass.getContainedClass());
+        if (notAlreadyCached(tClass)) {
+            sleepForALittleWhile();
+            System.out.println("Entries in the map -> " + singletonObjectCache.entrySet().size());
+            instance = instantiator.instantiate(decoratedClass);
+            singletonObjectCache.put(tClass, instance);
+        }
+        System.out.println("exited synchronized block.....");
+        return instance;
     }
 
     private void sleepForALittleWhile() {

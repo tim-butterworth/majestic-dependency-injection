@@ -16,7 +16,7 @@ import com.reflecty.instantiators.ConstantInstantiator;
 import com.reflecty.instantiators.Instantiator;
 import com.reflecty.instantiators.ProxiedInterfaceInstantiator;
 import com.reflecty.instantiators.ReflectiveInstantiator;
-import com.reflecty.configurations.ConstantTypeContainer;
+import com.reflecty.configurations.MatchingContainer;
 import com.reflecty.matchers.ObjectMatcher;
 
 import java.util.Arrays;
@@ -57,7 +57,7 @@ public class ObjectBuilderMachineBuilder {
 
     private void populateInterfaceModule() {
         interfaceModule = new InterfaceModule();
-        interfaceMatcherPairList.forEach(item -> interfaceModule.register(item.getAnImplementation(), item.getTypeMatcher()));
+        interfaceMatcherPairList.forEach(item -> interfaceModule.register(item.getTypeMatcher(), item.getAnImplementation()));
     }
 
     private List<ObjectMatcher<Class<?>, CachingStrategy>> getCachingStrategiesList() {
@@ -89,13 +89,13 @@ public class ObjectBuilderMachineBuilder {
         );
     }
 
-    public <T, R extends T> ObjectBuilderMachineBuilder registerImplmentation(Class<R> anImplementation, TypeMatcher<T> typeMatcher) {
+    public <T, R extends T> ObjectBuilderMachineBuilder registerImplmentation(TypeMatcher<T> typeMatcher, Class<R> anImplementation) {
         interfaceMatcherPairList.add(new InterfaceMatcherPair<>(anImplementation, typeMatcher));
         return this;
     }
 
-    public <T> ObjectBuilderMachineBuilder registerConstant(Class<T> key, ConstantTypeContainer<T> one) {
-        constantMatcherPairList.add(new ConstantMatcherPair<>(key, one));
+    public <T> ObjectBuilderMachineBuilder registerConstant(MatchingContainer<T> one) {
+        constantMatcherPairList.add(new ConstantMatcherPair<>(one));
         return this;
     }
 
@@ -118,19 +118,13 @@ public class ObjectBuilderMachineBuilder {
     }
 
     private class ConstantMatcherPair<T> {
-        private final Class<T> key;
-        private final ConstantTypeContainer<T> one;
+        private final MatchingContainer<T> one;
 
-        public ConstantMatcherPair(Class<T> key, ConstantTypeContainer<T> one) {
-            this.key = key;
+        public ConstantMatcherPair(MatchingContainer<T> one) {
             this.one = one;
         }
 
-        public Class<T> getAnImplementation() {
-            return key;
-        }
-
-        public ConstantTypeContainer<T> getTypeMatcher() {
+        public MatchingContainer<T> getTypeMatcher() {
             return one;
         }
     }

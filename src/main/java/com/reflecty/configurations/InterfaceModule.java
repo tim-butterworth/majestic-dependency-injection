@@ -7,7 +7,7 @@ import java.util.*;
 public class InterfaceModule {
     private Map<Class<?>, Set<TypeMatcher>> registryCache = new HashMap<>();
 
-    public InterfaceModule register(Class<?> clazz, TypeMatcher matcher) {
+    public InterfaceModule register(TypeMatcher matcher, Class<?> clazz) {
         Set<TypeMatcher> typeMatchers = registryCache.get(clazz);
         if (typeMatchers == null) {
             typeMatchers = new HashSet<>();

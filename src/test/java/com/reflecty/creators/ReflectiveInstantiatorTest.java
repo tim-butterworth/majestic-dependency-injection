@@ -4,6 +4,7 @@ import com.reflecty.ObjectBuilderMachine;
 import com.reflecty.configurations.InterfaceModule;
 import com.reflecty.configurations.DecoratedClass;
 import com.reflecty.helperObjects.ObjectContainer;
+import com.reflecty.instantiators.CreateObjectFromConstructor;
 import com.reflecty.instantiators.ReflectiveInstantiator;
 import com.reflecty.testModels.*;
 import org.junit.Before;
@@ -34,9 +35,7 @@ public class ReflectiveInstantiatorTest {
 
         module = mock(InterfaceModule.class);
 
-        reflectiveInstantiator = new ReflectiveInstantiator(
-                container
-        );
+        reflectiveInstantiator = new ReflectiveInstantiator(new CreateObjectFromConstructor(container));
     }
 
     @Test

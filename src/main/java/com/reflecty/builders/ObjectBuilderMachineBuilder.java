@@ -2,6 +2,7 @@ package com.reflecty.builders;
 
 import com.reflecty.ObjectBuilderMachine;
 import com.reflecty.annotations.Constant;
+import com.reflecty.annotations.Proxied;
 import com.reflecty.annotations.Singleton;
 import com.reflecty.cachingStrategies.CachingStrategy;
 import com.reflecty.cachingStrategies.NoCachingStrategy;
@@ -12,10 +13,7 @@ import com.reflecty.configurations.DecoratedClass;
 import com.reflecty.configurations.TypeMatcher;
 import com.reflecty.creators.InstanceCreatorMachine;
 import com.reflecty.helperObjects.ObjectContainer;
-import com.reflecty.instantiators.ConstantInstantiator;
-import com.reflecty.instantiators.Instantiator;
-import com.reflecty.instantiators.ProxiedInterfaceInstantiator;
-import com.reflecty.instantiators.ReflectiveInstantiator;
+import com.reflecty.instantiators.*;
 import com.reflecty.configurations.MatchingContainer;
 import com.reflecty.matchers.ObjectMatcher;
 
@@ -75,17 +73,28 @@ public class ObjectBuilderMachineBuilder {
 
     private List<ObjectMatcher<DecoratedClass<?>, Instantiator>> getInstantiatorsList(ObjectContainer<ObjectBuilderMachine> objectBuilderMachineObjectContainer) {
         Function<DecoratedClass<?>, Boolean> matchAllForInstantiator = o -> true;
+
         Function<DecoratedClass<?>, Boolean> matchConstantInstantiator = decoratedClass -> !Arrays.asList(decoratedClass.getExtraAnnotations())
                 .stream()
                 .filter(annotation -> annotation instanceof Constant)
                 .collect(Collectors.toList())
                 .isEmpty();
+
+        Function<DecoratedClass<?>, Boolean> matchProxiedClassInstantiator = decoratedClass -> Arrays.asList(decoratedClass.getContainedClass().getDeclaredAnnotations())
+                .stream()
+                .filter(annotation -> annotation instanceof Proxied)
+                .findFirst()
+                .map(annotation -> true)
+                .orElse(false);
+
         Function<DecoratedClass<?>, Boolean> matchProxieInterfaceInstantiator = decoratedClass -> decoratedClass.getContainedClass().isInterface();
 
+        CreateObjectFromConstructor createObjectFromConstructor = new CreateObjectFromConstructor(objectBuilderMachineObjectContainer);
         return Arrays.asList(
                 new ObjectMatcher<>(matchProxieInterfaceInstantiator, new ProxiedInterfaceInstantiator(objectBuilderMachineObjectContainer)),
+                new ObjectMatcher<>(matchProxiedClassInstantiator, new ProxiedClassInstantiator(createObjectFromConstructor)),
                 new ObjectMatcher<>(matchConstantInstantiator, new ConstantInstantiator(constantModule)),
-                new ObjectMatcher<>(matchAllForInstantiator, new ReflectiveInstantiator(objectBuilderMachineObjectContainer))
+                new ObjectMatcher<>(matchAllForInstantiator, new ReflectiveInstantiator(createObjectFromConstructor))
         );
     }
 

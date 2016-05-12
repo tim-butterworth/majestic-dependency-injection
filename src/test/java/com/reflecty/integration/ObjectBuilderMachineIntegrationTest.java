@@ -156,7 +156,7 @@ public class ObjectBuilderMachineIntegrationTest {
     }
 
     @Test
-    public void createAChainOfClasses() throws Exception {
+    public void createALazyChainOfClasses() throws Exception {
         ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachineBuilder().build();
 
         NodeChain current = objectBuilderMachine.getInstance(NodeChain.class);
@@ -185,4 +185,5 @@ public class ObjectBuilderMachineIntegrationTest {
 
         assertThat(fancyFactory, instanceOf(OracleFancyFactoryImpl.class));
     }
+
 }

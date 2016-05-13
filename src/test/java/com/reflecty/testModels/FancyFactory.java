@@ -1,6 +1,3 @@
 package com.reflecty.testModels;
 
-public interface FancyFactory {
-
-
-}
+public interface FancyFactory { }

@@ -1,30 +1,20 @@
 package com.reflecty.builders;
 
 import com.reflecty.ObjectBuilderMachine;
-import com.reflecty.annotations.Constant;
-import com.reflecty.annotations.Proxied;
-import com.reflecty.annotations.Singleton;
-import com.reflecty.cachingStrategies.CachingStrategy;
-import com.reflecty.cachingStrategies.NoCachingStrategy;
-import com.reflecty.cachingStrategies.SingletonCacheStrategy;
 import com.reflecty.configurations.ConstantModule;
 import com.reflecty.configurations.InterfaceModule;
-import com.reflecty.configurations.DecoratedClass;
 import com.reflecty.configurations.TypeMatcher;
 import com.reflecty.creators.InstanceCreatorMachine;
 import com.reflecty.helperObjects.ObjectContainer;
-import com.reflecty.instantiators.*;
 import com.reflecty.configurations.MatchingContainer;
-import com.reflecty.matchers.ObjectMatcher;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class ObjectBuilderMachineBuilder {
 
+    private final InstantiatorsListBuilder instantiatorsListBuilder = new InstantiatorsListBuilder();
+    private final CachingStrategyListBuilder cachingStrategyListBuilder = new CachingStrategyListBuilder();
     private InterfaceModule interfaceModule;
     private ConstantModule constantModule;
     private List<InterfaceMatcherPair> interfaceMatcherPairList = new LinkedList<>();
@@ -37,65 +27,14 @@ public class ObjectBuilderMachineBuilder {
         populateConstantModule();
 
         ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachine(
-                getInstantiatorsList(objectBuilderMachineObjectContainer),
-                getCachingStrategiesList(),
+                instantiatorsListBuilder.getInstantiatorsList(objectBuilderMachineObjectContainer, constantModule),
+                cachingStrategyListBuilder.getCachingStrategiesList(),
                 new InstanceCreatorMachine(),
                 interfaceModule
         );
-
         objectBuilderMachineObjectContainer.addToContainer(objectBuilderMachine);
 
         return objectBuilderMachine;
-    }
-
-    private void populateConstantModule() {
-        constantModule = new ConstantModule();
-        constantMatcherPairList.forEach(item -> constantModule.register(item.getTypeMatcher()));
-    }
-
-    private void populateInterfaceModule() {
-        interfaceModule = new InterfaceModule();
-        interfaceMatcherPairList.forEach(item -> interfaceModule.register(item.getTypeMatcher(), item.getAnImplementation()));
-    }
-
-    private List<ObjectMatcher<Class<?>, CachingStrategy>> getCachingStrategiesList() {
-        Function<Class<?>, Boolean> matchAllForCaching = o -> true;
-        Function<Class<?>, Boolean> matchSingletonCaching = aClass -> !Arrays.asList(aClass.getDeclaredAnnotations())
-                .stream()
-                .filter(annotation -> annotation instanceof Singleton)
-                .collect(Collectors.toList()).isEmpty();
-
-        return Arrays.asList(
-                new ObjectMatcher<>(matchSingletonCaching, new SingletonCacheStrategy()),
-                new ObjectMatcher<>(matchAllForCaching, new NoCachingStrategy())
-        );
-    }
-
-    private List<ObjectMatcher<DecoratedClass<?>, Instantiator>> getInstantiatorsList(ObjectContainer<ObjectBuilderMachine> objectBuilderMachineObjectContainer) {
-        Function<DecoratedClass<?>, Boolean> matchAllForInstantiator = o -> true;
-
-        Function<DecoratedClass<?>, Boolean> matchConstantInstantiator = decoratedClass -> !Arrays.asList(decoratedClass.getExtraAnnotations())
-                .stream()
-                .filter(annotation -> annotation instanceof Constant)
-                .collect(Collectors.toList())
-                .isEmpty();
-
-        Function<DecoratedClass<?>, Boolean> matchProxiedClassInstantiator = decoratedClass -> Arrays.asList(decoratedClass.getContainedClass().getDeclaredAnnotations())
-                .stream()
-                .filter(annotation -> annotation instanceof Proxied)
-                .findFirst()
-                .map(annotation -> true)
-                .orElse(false);
-
-        Function<DecoratedClass<?>, Boolean> matchProxieInterfaceInstantiator = decoratedClass -> decoratedClass.getContainedClass().isInterface();
-
-        CreateObjectFromConstructor createObjectFromConstructor = new CreateObjectFromConstructor(objectBuilderMachineObjectContainer);
-        return Arrays.asList(
-                new ObjectMatcher<>(matchProxieInterfaceInstantiator, new ProxiedInterfaceInstantiator(objectBuilderMachineObjectContainer)),
-                new ObjectMatcher<>(matchProxiedClassInstantiator, new ProxiedClassInstantiator(createObjectFromConstructor)),
-                new ObjectMatcher<>(matchConstantInstantiator, new ConstantInstantiator(constantModule)),
-                new ObjectMatcher<>(matchAllForInstantiator, new ReflectiveInstantiator(createObjectFromConstructor))
-        );
     }
 
     public <T, R extends T> ObjectBuilderMachineBuilder registerImplmentation(TypeMatcher<T> typeMatcher, Class<R> anImplementation) {
@@ -106,6 +45,16 @@ public class ObjectBuilderMachineBuilder {
     public <T> ObjectBuilderMachineBuilder registerConstant(MatchingContainer<T> one) {
         constantMatcherPairList.add(new ConstantMatcherPair<>(one));
         return this;
+    }
+
+    private void populateConstantModule() {
+        constantModule = new ConstantModule();
+        constantMatcherPairList.forEach(item -> constantModule.register(item.getTypeMatcher()));
+    }
+
+    private void populateInterfaceModule() {
+        interfaceModule = new InterfaceModule();
+        interfaceMatcherPairList.forEach(item -> interfaceModule.register(item.getTypeMatcher(), item.getAnImplementation()));
     }
 
     private class InterfaceMatcherPair<M extends T, T> {

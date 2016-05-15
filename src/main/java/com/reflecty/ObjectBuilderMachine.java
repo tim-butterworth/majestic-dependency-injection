@@ -32,20 +32,13 @@ public class ObjectBuilderMachine {
     public <T> T getInstance(Class<T> clazz, Annotation... extraAnnotations) {
         DecoratedClass<T> decoratedClass = new DecoratedClass<>(clazz, extraAnnotations);
         Class<T> match = interfaceModule.getMatch(decoratedClass);
+        DecoratedClass<T> tDecoratedClass = new DecoratedClass<>(match, extraAnnotations);
 
         return instanceCreatorMachine.getInstance(
-                new DecoratedClass<>(match, extraAnnotations),
-                getCachingStrategy(match),
-                getInstantiator(match, extraAnnotations)
+                tDecoratedClass,
+                getMatchFromMatcherList(match, cachingStrategyMatcher),
+                getMatchFromMatcherList(tDecoratedClass, instantatorMatcher)
         );
-    }
-
-    private <T> CachingStrategy getCachingStrategy(Class<T> match) {
-        return getMatchFromMatcherList(match, cachingStrategyMatcher);
-    }
-
-    private <T> Instantiator getInstantiator(Class<T> match, Annotation[] extraAnnotations) {
-        return getMatchFromMatcherList(new DecoratedClass<>(match, extraAnnotations), instantatorMatcher);
     }
 
     private <T, K> T getMatchFromMatcherList(K key, List<ObjectMatcher<K, T>> matchOptions) {

@@ -47,7 +47,7 @@ public class BeforeAfterWrappedMethodInvoker<T> {
         );
     }
 
-    public Object runtimeExceptionWrap(Object target, Method method, Object[] arguments) {
+    private Object runtimeExceptionWrap(Object target, Method method, Object[] arguments) {
         try {
             return method.invoke(target, arguments);
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -55,7 +55,7 @@ public class BeforeAfterWrappedMethodInvoker<T> {
         }
     }
 
-    public Method extractApplyFunction(Function beforeFunction) {
+    private Method extractApplyFunction(Function beforeFunction) {
         return Arrays.asList(beforeFunction.getClass().getDeclaredMethods())
                 .stream()
                 .filter(m -> m.getName().equals("apply"))
@@ -63,7 +63,7 @@ public class BeforeAfterWrappedMethodInvoker<T> {
                 .orElseThrow(() -> new RuntimeException("There is not apply method on " + beforeFunction.getClass().getName()));
     }
 
-    public Class<? extends Function> getClassFromAnnotation(
+    private Class<? extends Function> getClassFromAnnotation(
             Annotation[] declaredAnnotations,
             Predicate<Annotation> annotationPredicate,
             Function<Annotation, Class<? extends Function>> annotationFunction

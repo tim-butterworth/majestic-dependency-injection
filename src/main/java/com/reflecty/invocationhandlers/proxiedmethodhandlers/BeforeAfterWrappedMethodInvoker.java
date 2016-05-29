@@ -14,7 +14,7 @@ import java.util.function.Predicate;
 
 public class BeforeAfterWrappedMethodInvoker<T> {
 
-    public Object invokeBeforeAndAfterWrappedMethod(Object[] args, Method declaredMethod, T instance) throws InstantiationException, IllegalAccessException {
+    public Object invokeMethod(Object[] args, Method declaredMethod, T instance) throws InstantiationException, IllegalAccessException {
         Annotation[] declaredAnnotations = declaredMethod.getDeclaredAnnotations();
 
         List<Function> functions = getOrderedFunctionList(declaredMethod, instance, declaredAnnotations);
@@ -45,6 +45,7 @@ public class BeforeAfterWrappedMethodInvoker<T> {
                 arguments -> runtimeExceptionWrap(instance, declaredMethod, (Object[]) arguments),
                 arguments -> runtimeExceptionWrap(beforeFunction, extractApplyFunction(beforeFunction), (Object[]) arguments)
         );
+
     }
 
     private Object runtimeExceptionWrap(Object target, Method method, Object[] arguments) {
@@ -68,7 +69,7 @@ public class BeforeAfterWrappedMethodInvoker<T> {
             Predicate<Annotation> annotationPredicate,
             Function<Annotation, Class<? extends Function>> annotationFunction
     ) {
-        return (Class<? extends Function>) Arrays.asList(declaredAnnotations).stream()
+        return (Class<Function>) Arrays.asList(declaredAnnotations).stream()
                 .filter(annotationPredicate)
                 .findFirst()
                 .map(value -> new Class[]{annotationFunction.apply(value)})

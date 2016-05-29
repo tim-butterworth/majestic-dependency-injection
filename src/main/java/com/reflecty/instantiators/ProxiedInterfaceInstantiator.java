@@ -6,10 +6,12 @@ import com.reflecty.providers.ObjectProvider;
 import com.reflecty.helperObjects.ObjectContainer;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.Set;
 
 public class ProxiedInterfaceInstantiator implements Instantiator {
 
@@ -20,7 +22,7 @@ public class ProxiedInterfaceInstantiator implements Instantiator {
     }
 
     @Override
-    public <T> T instantiate(DecoratedClass<T> decoratedClass) {
+    public <T> T instantiate(DecoratedClass<T> decoratedClass, Set<Class<?>> classSet) {
         Boolean isObjectProvider = Arrays.asList(decoratedClass.getContainedClass().getInterfaces()).stream()
                 .filter(clazz -> clazz.equals(ObjectProvider.class))
                 .findFirst()
@@ -30,7 +32,8 @@ public class ProxiedInterfaceInstantiator implements Instantiator {
         Class<T> containedClass = decoratedClass.getContainedClass();
         if (isObjectProvider) {
             Class<?> providedClass = (Class<?>) ((ParameterizedTypeImpl) containedClass.getGenericInterfaces()[0]).getActualTypeArguments()[0];
-            return getProxyInstance(containedClass, ((a, b, c) -> builderMachineContainer.getContents().getInstance(providedClass)));
+            return getProxyInstance(containedClass, ((a, b, c) -> builderMachineContainer.getContents()
+                    .getInstance(providedClass)));
         }
 
         String randomString = getRandomString();

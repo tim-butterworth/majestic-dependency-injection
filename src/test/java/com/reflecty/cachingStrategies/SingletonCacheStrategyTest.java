@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.function.Function;
 
@@ -58,9 +59,10 @@ public class SingletonCacheStrategyTest {
     public void getInstance_callsGetInstanceWhenInstanceIsNotChached() throws Exception {
         DecoratedClass<TestClass1> classContainer = new DecoratedClass<>(TestClass1.class);
 
-        singletonInstanceCreator.getInstance(mock, classContainer);
+        HashSet<Class<?>> classSet = new HashSet<>();
+        singletonInstanceCreator.getInstance(mock, classContainer, classSet);
 
-        verify(mock).instantiate(classContainer);
+        verify(mock).instantiate(classContainer, classSet);
         verifyNoMoreInteractions(mock);
     }
 
@@ -70,14 +72,15 @@ public class SingletonCacheStrategyTest {
 
         TestClass1 testClass1 = new TestClass1();
 
-        when(mock.instantiate(classContainer)).thenReturn(testClass1);
+        HashSet<Class<?>> classSet = new HashSet<>();
+        when(mock.instantiate(classContainer, classSet)).thenReturn(testClass1);
 
-        TestClass1 instance = singletonInstanceCreator.getInstance(mock, classContainer);
-        TestClass1 instance2 = singletonInstanceCreator.getInstance(mock, classContainer);
+        TestClass1 instance = singletonInstanceCreator.getInstance(mock, classContainer, classSet);
+        TestClass1 instance2 = singletonInstanceCreator.getInstance(mock, classContainer, classSet);
 
         assertThat(instance, sameInstance(instance2));
 
-        verify(mock).instantiate(classContainer);
+        verify(mock).instantiate(classContainer, classSet);
         verifyNoMoreInteractions(mock);
     }
 
@@ -98,7 +101,7 @@ public class SingletonCacheStrategyTest {
     }
 
     private <T> Function<Class<T>, T> getFunctionForClass() {
-        return objectClass -> singletonInstanceCreator.getInstance(mock, new DecoratedClass<T>(objectClass));
+        return objectClass -> singletonInstanceCreator.getInstance(mock, new DecoratedClass<T>(objectClass), new HashSet<>());
     }
 
 }

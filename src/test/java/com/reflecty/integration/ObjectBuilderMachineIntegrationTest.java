@@ -3,8 +3,11 @@ package com.reflecty.integration;
 import com.reflecty.ObjectBuilderMachine;
 import com.reflecty.builders.ObjectBuilderMachineBuilder;
 import com.reflecty.configurations.*;
+import com.reflecty.exceptions.CyclicDependencyException;
 import com.reflecty.testModels.*;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -12,6 +15,9 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 
 public class ObjectBuilderMachineIntegrationTest {
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void name() throws Exception {
@@ -186,4 +192,19 @@ public class ObjectBuilderMachineIntegrationTest {
         assertThat(fancyFactory, instanceOf(OracleFancyFactoryImpl.class));
     }
 
+    @Test
+    public void throwsAnExceptionWhenThereAreSimpleCyclicDependencies() throws Exception {
+        ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachineBuilder().build();
+
+        expectedException.expect(CyclicDependencyException.class);
+        objectBuilderMachine.getInstance(ClassWithACycle.class);
+    }
+
+    @Test
+    public void throwsAnExceptionWhenThereAreDeapCycles() throws Exception {
+        ObjectBuilderMachine objectBuilderMachine = new ObjectBuilderMachineBuilder().build();
+
+        expectedException.expect(CyclicDependencyException.class);
+        objectBuilderMachine.getInstance(ClassWithDeepCycle.class);
+    }
 }

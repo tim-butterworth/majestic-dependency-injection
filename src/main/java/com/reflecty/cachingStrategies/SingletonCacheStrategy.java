@@ -5,6 +5,7 @@ import com.reflecty.instantiators.Instantiator;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class SingletonCacheStrategy implements CachingStrategy {
     private final Map<Class<?>, Object> singletonObjectCache;
@@ -14,21 +15,21 @@ public class SingletonCacheStrategy implements CachingStrategy {
     }
 
     @Override
-    public <T> T getInstance(Instantiator instantiator, DecoratedClass<T> decoratedClass) {
+    public <T> T getInstance(Instantiator instantiator, DecoratedClass<T> decoratedClass, Set<Class<?>> classSet) {
         System.out.println("Thread " + Thread.currentThread().getName() + " is about to enter synchronized block");
         Class<T> tClass = decoratedClass.getContainedClass();
         synchronized (tClass) {
-            return createOrGetFromCache(instantiator, decoratedClass, tClass);
+            return createOrGetFromCache(instantiator, decoratedClass, tClass, classSet);
         }
     }
 
-    private <T> T createOrGetFromCache(Instantiator instantiator, DecoratedClass<T> decoratedClass, Class<T> tClass) {
+    private <T> T createOrGetFromCache(Instantiator instantiator, DecoratedClass<T> decoratedClass, Class<T> tClass, Set<Class<?>> classSet) {
         System.out.println("Thread " + Thread.currentThread().getName() + " entered synchronized block......" + tClass.getName());
         T instance = (T) singletonObjectCache.get(decoratedClass.getContainedClass());
         if (notAlreadyCached(tClass)) {
             sleepForALittleWhile();
             System.out.println("Entries in the map -> " + singletonObjectCache.entrySet().size());
-            instance = instantiator.instantiate(decoratedClass);
+            instance = instantiator.instantiate(decoratedClass, classSet);
             singletonObjectCache.put(tClass, instance);
         }
         System.out.println("exited synchronized block.....");

@@ -6,6 +6,7 @@ import com.reflecty.invocationhandlers.ProxiedClassInvocationHandler;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
+import java.util.Set;
 
 public class ProxiedClassInstantiator implements Instantiator {
 
@@ -16,12 +17,12 @@ public class ProxiedClassInstantiator implements Instantiator {
     }
 
     @Override
-    public <T> T instantiate(DecoratedClass<T> decoratedClass) {
+    public <T> T instantiate(DecoratedClass<T> decoratedClass, Set<Class<?>> classSet) {
         Class<T> containedClass = decoratedClass.getContainedClass();
         Class<?> interfaceClass = containedClass.getInterfaces()[0];
 
         Constructor<?> constructor = containedClass.getDeclaredConstructors()[0];
-        Object[] objects = objectBuilderMachineObjectContainer.buildConstructorArguments(constructor);
+        Object[] objects = objectBuilderMachineObjectContainer.buildConstructorArguments(constructor, classSet);
 
         try {
             T instance = (T) constructor.newInstance(objects);

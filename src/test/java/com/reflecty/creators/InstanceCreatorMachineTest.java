@@ -8,6 +8,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runners.model.TestClass;
 
+import java.util.HashSet;
+
 import static org.hamcrest.core.IsSame.sameInstance;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -31,10 +33,10 @@ public class InstanceCreatorMachineTest {
 
         TestClass expectedInstance = mock(TestClass.class);
 
-        when(cachingStrategy.getInstance(defaultInstantiator, decoratedClass)).thenReturn(expectedInstance);
+        when(cachingStrategy.getInstance(defaultInstantiator, decoratedClass, new HashSet<>())).thenReturn(expectedInstance);
         when(module.getMatch(decoratedClass)).thenReturn(TestClass.class);
 
-        TestClass instance = instanceCreatorMachine.getInstance(new DecoratedClass<>(TestClass.class), cachingStrategy, defaultInstantiator);
+        TestClass instance = instanceCreatorMachine.getInstance(new DecoratedClass<>(TestClass.class), cachingStrategy, defaultInstantiator, new HashSet<>());
 
         assertThat(instance, sameInstance(expectedInstance));
     }

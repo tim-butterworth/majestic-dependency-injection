@@ -5,6 +5,7 @@ import com.reflecty.helperObjects.ObjectContainer;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -15,7 +16,7 @@ public class CreateObjectFromConstructor {
         this.objectBuilderMachineObjectContainer = objectBuilderMachineObjectContainer;
     }
 
-    <T> Object[] buildConstructorArguments(Constructor<?> constructor) {
+    public <T> Object[] buildConstructorArguments(Constructor<?> constructor, Set<Class<?>> classSet) {
         Annotation[][] parameterAnnotations = constructor.getParameterAnnotations();
         Class<?>[] parameterTypes = constructor.getParameterTypes();
 
@@ -23,6 +24,7 @@ public class CreateObjectFromConstructor {
                 .mapToObj(i -> objectBuilderMachineObjectContainer.getContents()
                         .getInstance(
                                 (Class<T>) parameterTypes[i],
+                                classSet,
                                 parameterAnnotations[i]
                         )).collect(Collectors.toList()).toArray();
     }

@@ -10,6 +10,8 @@ import com.reflecty.testModels.proxiedModels.WrappedMethodCallImpl;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashSet;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
@@ -36,7 +38,7 @@ public class ProxiedClassInstantiatorTest {
 
     @Test
     public void instantiate_returnsAProxyWrappedClass() throws Exception {
-        WrappedMethodCall instance = proxiedClassInstantiator.instantiate(new DecoratedClass<>(WrappedMethodCallImpl.class));
+        WrappedMethodCall instance = proxiedClassInstantiator.instantiate(new DecoratedClass<>(WrappedMethodCallImpl.class), new HashSet<>());
 
         ConfigureableObject configureableObject = new ConfigureableObject();
         instance.doTheThing(configureableObject);
@@ -47,8 +49,10 @@ public class ProxiedClassInstantiatorTest {
     @Test
     public void instantiate_returnsAProxyWrappedClassForAClassWithAConstructor() throws Exception {
         TestClass1 expectedClass = new TestClass1();
-        when(objectBuilderMachine.getInstance(TestClass1.class)).thenReturn(expectedClass);
-        WrappedMethodCall instance = proxiedClassInstantiator.instantiate(new DecoratedClass<>(WrappedMethodCallConstructorImpl.class));
+        HashSet<Class<?>> classes = new HashSet<>();
+        when(objectBuilderMachine.getInstance(TestClass1.class, classes)).thenReturn(expectedClass);
+
+        WrappedMethodCall instance = proxiedClassInstantiator.instantiate(new DecoratedClass<>(WrappedMethodCallConstructorImpl.class), classes);
 
         ConfigureableObject configureableObject = new ConfigureableObject();
         instance.doTheThing(configureableObject);

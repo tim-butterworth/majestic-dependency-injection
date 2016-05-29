@@ -11,6 +11,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.util.HashSet;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -37,7 +39,7 @@ public class ProxiedInterfaceInstantiatorTest {
 
     @Test
     public void instantiate_randomAnnotatedWithStringMethod() throws Exception {
-        RandomStringInterface instantiate = proxiedInterfaceInstantiator.instantiate(new DecoratedClass<>(RandomStringInterface.class));
+        RandomStringInterface instantiate = proxiedInterfaceInstantiator.instantiate(new DecoratedClass<>(RandomStringInterface.class), new HashSet<>());
 
         assertThat(instantiate.getAString(), not(nullValue()));
     }
@@ -47,7 +49,7 @@ public class ProxiedInterfaceInstantiatorTest {
         StatefulObject expectedStatefulObject = new StatefulObject();
         when(objectBuilderMachine.getInstance(StatefulObject.class)).thenReturn(expectedStatefulObject);
 
-        StatefulObjectProvider statefulObjectProvider = proxiedInterfaceInstantiator.instantiate(new DecoratedClass<>(StatefulObjectProvider.class));
+        StatefulObjectProvider statefulObjectProvider = proxiedInterfaceInstantiator.instantiate(new DecoratedClass<>(StatefulObjectProvider.class), new HashSet<>());
 
         StatefulObject instance = statefulObjectProvider.getInstance();
 

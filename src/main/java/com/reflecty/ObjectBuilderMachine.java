@@ -31,8 +31,8 @@ public class ObjectBuilderMachine {
         this.interfaceModule = interfaceModule;
     }
 
-    public <T> T getInstance(Class<T> clazz, Annotation... extraAnnotations) {
-        return getInstance(clazz, new HashSet<>(), extraAnnotations);
+    public <T> T getInstance(Class<T> clazz) {
+        return getInstance(clazz, new HashSet<>());
     }
 
     public <T> T getInstance(Class<T> clazz, Set<Class<?>> classes, Annotation... extraAnnotations) {
